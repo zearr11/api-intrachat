@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(authChannelInterceptor);
     }
 
-    // Cliente se conecta aquí: ws://localhost:8080/ws
+    // Cliente se conecta aquí: ws://localhost:PORT/ws
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")

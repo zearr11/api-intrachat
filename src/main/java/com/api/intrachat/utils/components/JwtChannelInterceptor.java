@@ -1,6 +1,7 @@
 package com.api.intrachat.utils.components;
 
-import com.api.intrachat.services.interfaces.IJwtService;
+import com.api.intrachat.services.impl.user.CustomUserDetailsService;
+import com.api.intrachat.services.interfaces.others.IJwtService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -11,17 +12,19 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 @Component
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
     private final IJwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;
 
-    public JwtChannelInterceptor(IJwtService jwtService) {
+    public JwtChannelInterceptor(IJwtService jwtService,
+                                 CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -30,29 +33,39 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor == null) return message;
 
-        StompCommand command = accessor.getCommand();
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
-        if (StompCommand.CONNECT.equals(command)) {
-            String token = accessor.getFirstNativeHeader("Authorization");
+            String authHeader = accessor.getFirstNativeHeader("Authorization");
+            String token;
+            String email;
 
-            if (token == null || !token.startsWith("Bearer ")) {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 throw new AuthenticationCredentialsNotFoundException("Authorization header missing.");
             }
 
-            token = token.substring(7);
+            token = authHeader.substring(7);
 
             if (!jwtService.validateJwtToken(token)) {
                 throw new BadCredentialsException("Invalid token.");
             }
 
-            String email = jwtService.extractEmail(token);
-            List<SimpleGrantedAuthority> roles = jwtService.extractRoles(token);
+            email = jwtService.extractEmail(token);
 
-            Authentication auth = new UsernamePasswordAuthenticationToken(
-                    email, null, roles
-            );
+            if (email != null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            accessor.setUser(auth);
+                if (userDetails != null
+                        && jwtService.isTokenValid(token, userDetails)
+                        && jwtService.isAccessToken(token)
+                ) {
+                    Authentication auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+                    accessor.setUser(auth);
+                }
+            }
+
         }
 
         return message;

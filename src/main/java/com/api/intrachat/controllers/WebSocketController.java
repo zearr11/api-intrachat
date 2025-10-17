@@ -1,15 +1,10 @@
 package com.api.intrachat.controllers;
 
-import com.api.intrachat.services.interfaces.communication.IMessageService;
-import com.api.intrachat.utils.dto.request.MessageIndividualRequest;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import java.security.Principal;
 
 @Controller
 public class WebSocketController {
-
+    /*
     private final SimpMessagingTemplate messagingTemplate;
     private final IMessageService messageService;
 
@@ -29,9 +24,10 @@ public class WebSocketController {
         return chatMessage;
     }
     */
-
+    /*
     @MessageMapping("/chat.private")
     public void sendPrivateMessage(MessageIndividualRequest chatMessage, Principal principal) {
+
         chatMessage.setSender(principal.getName());
         messageService.saveMessageIndividual(chatMessage);
 
@@ -41,5 +37,5 @@ public class WebSocketController {
                 chatMessage
         );
     }
-
+    */
 }

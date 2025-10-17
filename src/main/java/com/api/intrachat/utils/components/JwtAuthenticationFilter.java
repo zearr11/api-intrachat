@@ -1,7 +1,7 @@
 package com.api.intrachat.utils.components;
 
-import com.api.intrachat.services.impl.entity.CustomUserDetailsService;
-import com.api.intrachat.services.interfaces.IJwtService;
+import com.api.intrachat.services.impl.user.CustomUserDetailsService;
+import com.api.intrachat.services.interfaces.others.IJwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

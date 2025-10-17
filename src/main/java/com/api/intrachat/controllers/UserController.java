@@ -1,10 +1,10 @@
 package com.api.intrachat.controllers;
 
-import com.api.intrachat.utils.dto.request.UserRequest;
-import com.api.intrachat.utils.dto.response.GeneralResponse;
-import com.api.intrachat.services.interfaces.entity.IUserService;
+import com.api.intrachat.services.interfaces.user.IUserService;
 import com.api.intrachat.utils.constants.ValuesPaginated;
 import com.api.intrachat.utils.constructs.ResponseConstruct;
+import com.api.intrachat.utils.dto.request.ok.UserRequest;
+import com.api.intrachat.utils.dto.response.general.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

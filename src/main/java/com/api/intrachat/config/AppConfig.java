@@ -19,11 +19,11 @@ public class AppConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // aplica a todas las rutas
-                        .allowedOriginPatterns("*") // permite todos los orígenes
-                        .allowedMethods("*")        // permite todos los métodos (GET, POST, PUT, DELETE, etc.)
-                        .allowedHeaders("*")        // permite todos los headers
-                        .allowCredentials(true);    // permite credenciales (cookies, auth headers)
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("*") // GET POST PUT DELETE
+                        .allowedHeaders("*") // ALL HEADERS
+                        .allowCredentials(true); // ALLOW CREDENTIALS
             }
         };
     }

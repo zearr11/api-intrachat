@@ -1,6 +1,6 @@
 package com.api.intrachat.utils.constructs;
 
-import com.api.intrachat.utils.dto.response.GeneralResponse;
+import com.api.intrachat.utils.dto.response.general.GeneralResponse;
 import com.api.intrachat.utils.constants.ValuesStatus;
 
 public class ResponseConstruct {
