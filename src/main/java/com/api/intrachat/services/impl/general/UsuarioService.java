@@ -138,15 +138,6 @@ public class UsuarioService implements IUsuarioService {
         );
     }
 
-    /*
-        List<UsuarioResponse> usuarios = listado.getContent()
-                    .stream()
-                    .map(usuario -> {
-                        Equipo equipo = null;
-                        return UsuarioMapper.usuarioResponse(usuario, equipo.getSede(), equipo.getCampania(), equipo);
-                    }).toList();
-    */
-
     @Transactional
     @Override
     public String crearUsuario(UsuarioRequest usuarioRequest) {
@@ -281,7 +272,7 @@ public class UsuarioService implements IUsuarioService {
                 usuarioModificar.getPersona().getNumeroDoc(), usuarioModificar.getPersona().getTipoDoc()
         );
 
-        // Encontrar en bd persona con tipo y numero de documento igual
+        // Encontrar en bd persona con tipo y número de documento igual
         Optional<Persona> personaCoincidente = personaRepository.findByTipoDocAndNumeroDoc(
                 usuarioModificar.getPersona().getTipoDoc(), usuarioModificar.getPersona().getNumeroDoc());
 
@@ -330,7 +321,7 @@ public class UsuarioService implements IUsuarioService {
         // Asignación de archivo actual
         Archivo archivoActual = usuarioModificar.getImagenPerfil();
 
-        // Actualizar ultima modificacion de entidad
+        // Actualizar ultima modificación de entidad
         usuarioModificar.setUltimaModificacion(LocalDateTime.now());
 
         // Si es un archivo compartido, se crea un nuevo archivo y se asigna al usuario
