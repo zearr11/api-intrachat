@@ -1,0 +1,23 @@
+package com.api.intrachat.utils.constants;
+
+public class ResponseConstants {
+
+    public static final String MENSAJE_GENERICO_NO_EXISTE = "No se encontraron resultados.";
+
+    public static String mensajeEntidadNoExiste(String entidad, String codigo) {
+        return entidad + " con código " + codigo + " no existe.";
+    }
+
+    public static String mensajeEntidadCreada(String entidad) {
+        return entidad + " creado.";
+    }
+
+    public static String mensajeEntidadActualizada(String entidad) {
+        return entidad + " actualizado.";
+    }
+
+    public static String mensajeEntidadYaRegistrada(String entidad) {
+        return entidad + " ya se encuentra registrado en el sistema.";
+    }
+
+}

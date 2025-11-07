@@ -7,7 +7,7 @@ public class PasswordRandomConstruct {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     private static final int PASSWORD_LENGTH = 12;
 
-    public static String generatePassword() {
+    public static String generarPassword() {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
 

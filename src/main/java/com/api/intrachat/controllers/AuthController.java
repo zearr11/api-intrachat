@@ -1,12 +1,11 @@
 package com.api.intrachat.controllers;
 
-import com.api.intrachat.services.impl.user.CustomUserDetailsService;
-import com.api.intrachat.services.interfaces.others.IJwtService;
-import com.api.intrachat.services.interfaces.user.IUserService;
+import com.api.intrachat.services.impl.CustomUserDetailsService;
+import com.api.intrachat.services.interfaces.other.IJwtService;
 import com.api.intrachat.utils.constructs.ResponseConstruct;
-import com.api.intrachat.utils.dto.auth.AuthRequest;
-import com.api.intrachat.utils.dto.auth.AuthResponse;
-import com.api.intrachat.utils.dto.response.general.GeneralResponse;
+import com.api.intrachat.dto.request.AuthRequest;
+import com.api.intrachat.dto.response.AuthResponse;
+import com.api.intrachat.dto.generics.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,15 +24,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final IJwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
-    private final IUserService userService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           IJwtService jwtService,
-                          CustomUserDetailsService userDetailsService, IUserService userService) {
+                          CustomUserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.userService = userService;
     }
 
     @PostMapping("/auth")
@@ -45,12 +42,12 @@ public class AuthController {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
 
-        String accessToken = jwtService.generateAccessToken(userDetails);
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        String accessToken = jwtService.generarAccessToken(userDetails);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.success(
-                new AuthResponse(accessToken, refreshToken))
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(new AuthResponse(accessToken))
         );
 
     }
+
 }
