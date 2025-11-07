@@ -2,19 +2,15 @@ package com.api.intrachat.services.impl.campania;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.EmpresaRequest;
-import com.api.intrachat.dto.response.AreaResponse;
 import com.api.intrachat.dto.response.EmpresaResponse;
-import com.api.intrachat.models.campania.Area;
 import com.api.intrachat.models.campania.Empresa;
-import com.api.intrachat.models.campania.Pais;
 import com.api.intrachat.repositories.campania.EmpresaRepository;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
-import com.api.intrachat.utils.constants.ResponseConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
-import com.api.intrachat.utils.mappers.AreaMapper;
 import com.api.intrachat.utils.mappers.EmpresaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +33,7 @@ public class EmpresaService implements IEmpresaService {
     public Empresa obtenerEmpresaPorID(Long id) {
         return empresaRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("Empresa", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("Empresa", id.toString())
                 )
         );
     }
@@ -76,14 +72,14 @@ public class EmpresaService implements IEmpresaService {
     public String crearEmpresa(EmpresaRequest empresaRequest) {
 
         if (empresaRepository.findByNombre(empresaRequest.getNombre()).isPresent())
-            throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("Empresa"));
+            throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
 
         Empresa nuevaEmpresa = Empresa.builder()
                 .nombre(empresaRequest.getNombre())
                 .build();
         empresaRepository.save(nuevaEmpresa);
 
-        return ResponseConstants.mensajeEntidadCreada("Empresa");
+        return GeneralConstants.mensajeEntidadCreada("Empresa");
     }
 
     @Override
@@ -96,13 +92,13 @@ public class EmpresaService implements IEmpresaService {
             Optional<Empresa> empresaCoincidente = empresaRepository.findByNombre(empresaRequest.getNombre());
 
             if (empresaCoincidente.isPresent() && !id.equals(empresaCoincidente.get().getId()))
-                throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("Empresa"));
+                throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
 
             empresaActualizar.setNombre(empresaRequest.getNombre());
         }
 
         empresaRepository.save(empresaActualizar);
 
-        return ResponseConstants.mensajeEntidadActualizada("Empresa");
+        return GeneralConstants.mensajeEntidadActualizada("Empresa");
     }
 }

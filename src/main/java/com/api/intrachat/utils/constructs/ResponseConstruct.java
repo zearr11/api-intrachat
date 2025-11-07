@@ -12,6 +12,13 @@ public class ResponseConstruct {
                 .build();
     }
 
+    public static GeneralResponse<?> generarRespuestaExitosa(String message) {
+        return GeneralResponse.builder()
+                .status(StatusConstants.STATUS_OK)
+                .message(message)
+                .build();
+    }
+
     public static GeneralResponse<?> generarRespuestaFallida(String message) {
         return GeneralResponse.builder()
                 .status(StatusConstants.STATUS_FALLIDO)

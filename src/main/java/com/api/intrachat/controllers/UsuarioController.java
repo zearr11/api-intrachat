@@ -38,8 +38,8 @@ public class UsuarioController {
         ));
     }
 
-    // Lista - http://localhost:9890/api/v1/usuarios
-    @GetMapping
+    // Lista Paginada - http://localhost:9890/api/v1/usuarios/paginacion
+    @GetMapping("/paginacion")
     public ResponseEntity<GeneralResponse<?>> buscarUsuariosPaginado(
                     @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
                     @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,

@@ -4,8 +4,7 @@ import com.api.intrachat.models.general.Archivo;
 import com.api.intrachat.repositories.general.ArchivoRepository;
 import com.api.intrachat.services.interfaces.general.IArchivoService;
 import com.api.intrachat.services.interfaces.other.ICloudinaryService;
-import com.api.intrachat.utils.constants.ResponseConstants;
-import com.api.intrachat.utils.constants.UsuarioConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ public class ArchivoService implements IArchivoService {
     public Archivo obtenerArchivoPorID(Long id) {
         return archivoRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("Archivo", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("Archivo", id.toString())
                 )
         );
     }

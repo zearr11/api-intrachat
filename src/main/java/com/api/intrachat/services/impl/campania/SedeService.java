@@ -10,7 +10,7 @@ import com.api.intrachat.services.interfaces.campania.IPaisService;
 import com.api.intrachat.services.interfaces.campania.ISedeService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constants.PaisConstants;
-import com.api.intrachat.utils.constants.ResponseConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.constants.SedeConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
@@ -40,7 +40,7 @@ public class SedeService implements ISedeService {
     public Sede obtenerSedePorID(Long id) {
         return sedeRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("Sede", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("Sede", id.toString())
                 )
         );
     }
@@ -98,7 +98,7 @@ public class SedeService implements ISedeService {
 
         sedeRepository.save(nuevaSede);
 
-        return ResponseConstants.mensajeEntidadCreada("Sede");
+        return GeneralConstants.mensajeEntidadCreada("Sede");
     }
 
     @Override
@@ -129,6 +129,6 @@ public class SedeService implements ISedeService {
 
         sedeRepository.save(sedeActualizar);
 
-        return ResponseConstants.mensajeEntidadActualizada("Sede");
+        return GeneralConstants.mensajeEntidadActualizada("Sede");
     }
 }

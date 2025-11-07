@@ -7,7 +7,7 @@ import com.api.intrachat.models.campania.Area;
 import com.api.intrachat.repositories.campania.AreaRepository;
 import com.api.intrachat.services.interfaces.campania.IAreaService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
-import com.api.intrachat.utils.constants.ResponseConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
@@ -32,7 +32,7 @@ public class AreaService implements IAreaService {
     public Area obtenerAreaPorID(Long id) {
         return areaRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("Área", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("Área", id.toString())
                 )
         );
     }
@@ -71,14 +71,14 @@ public class AreaService implements IAreaService {
     public String crearArea(AreaRequest areaRequest) {
 
         if (areaRepository.findByNombre(areaRequest.getNombre()).isPresent())
-            throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("Área"));
+            throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Área"));
 
         Area nuevaArea = Area.builder()
                 .nombre(areaRequest.getNombre())
                 .build();
         areaRepository.save(nuevaArea);
 
-        return ResponseConstants.mensajeEntidadCreada("Área");
+        return GeneralConstants.mensajeEntidadCreada("Área");
     }
 
     @Override
@@ -91,14 +91,14 @@ public class AreaService implements IAreaService {
             Optional<Area> areaCoincidente = areaRepository.findByNombre(areaRequest.getNombre());
 
             if (areaCoincidente.isPresent() && !id.equals(areaCoincidente.get().getId()))
-                throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("Área"));
+                throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Área"));
 
             areaActualizar.setNombre(areaRequest.getNombre());
         }
 
         areaRepository.save(areaActualizar);
 
-        return ResponseConstants.mensajeEntidadActualizada("Área");
+        return GeneralConstants.mensajeEntidadActualizada("Área");
     }
 
 }

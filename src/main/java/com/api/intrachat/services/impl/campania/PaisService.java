@@ -1,9 +1,7 @@
 package com.api.intrachat.services.impl.campania;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
-import com.api.intrachat.dto.response.EmpresaResponse;
 import com.api.intrachat.dto.response.PaisResponse;
-import com.api.intrachat.models.campania.Empresa;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
@@ -11,9 +9,8 @@ import com.api.intrachat.utils.exceptions.errors.ErrorException409;
 import com.api.intrachat.models.campania.Pais;
 import com.api.intrachat.repositories.campania.PaisRepository;
 import com.api.intrachat.services.interfaces.campania.IPaisService;
-import com.api.intrachat.utils.constants.ResponseConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.dto.request.PaisRequest;
-import com.api.intrachat.utils.mappers.EmpresaMapper;
 import com.api.intrachat.utils.mappers.PaisMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,7 +32,7 @@ public class PaisService implements IPaisService {
     public Pais obtenerPaisPorID(Long id) {
         return paisRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("País", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("País", id.toString())
                 )
         );
     }
@@ -73,14 +70,14 @@ public class PaisService implements IPaisService {
     public String crearPais(PaisRequest paisRequest) {
 
         if (paisRepository.findByNombre(paisRequest.getNombre()).isPresent())
-            throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("País"));
+            throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("País"));
 
         Pais nuevoPais = Pais.builder()
                 .nombre(paisRequest.getNombre())
                 .build();
         paisRepository.save(nuevoPais);
 
-        return ResponseConstants.mensajeEntidadCreada("País");
+        return GeneralConstants.mensajeEntidadCreada("País");
     }
 
     @Override
@@ -93,14 +90,14 @@ public class PaisService implements IPaisService {
             Optional<Pais> paisCoincidente = paisRepository.findByNombre(paisRequest.getNombre());
 
             if (paisCoincidente.isPresent() && !id.equals(paisCoincidente.get().getId()))
-                throw new ErrorException409(ResponseConstants.mensajeEntidadYaRegistrada("País"));
+                throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("País"));
 
             paisActualizar.setNombre(paisRequest.getNombre());
         }
 
         paisRepository.save(paisActualizar);
 
-        return ResponseConstants.mensajeEntidadActualizada("País");
+        return GeneralConstants.mensajeEntidadActualizada("País");
     }
 
 }

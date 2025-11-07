@@ -2,7 +2,6 @@ package com.api.intrachat.utils.constants;
 
 public class UsuarioConstants {
 
-    public final static Boolean ESTADO_DEFAULT = true;
     public final static String INFO_DEFAULT = "Disponible";
     public final static Long ID_ARCHIVO_DEFAULT = 1L;
     public final static String ASUNTO_DEFAULT_BIENVENIDA_EMAIL = "Bienvenido a Covisian";

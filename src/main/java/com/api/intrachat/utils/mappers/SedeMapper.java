@@ -12,9 +12,7 @@ public class SedeMapper {
                 sede.getNombre(),
                 sede.getDireccion(),
                 sede.getCiudad(),
-                new PaisResponse(
-                        sede.getPais().getId(), sede.getPais().getNombre()
-                )
+                PaisMapper.paisResponse(sede.getPais())
         );
     }
 

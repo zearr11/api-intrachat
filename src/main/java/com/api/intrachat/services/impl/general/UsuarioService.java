@@ -14,7 +14,7 @@ import com.api.intrachat.repositories.general.PersonaRepository;
 import com.api.intrachat.repositories.general.UsuarioRepository;
 import com.api.intrachat.services.interfaces.general.IUsuarioService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
-import com.api.intrachat.utils.constants.ResponseConstants;
+import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.constants.UsuarioConstants;
 import com.api.intrachat.dto.request.UsuarioRequest;
 import com.api.intrachat.dto.response.UsuarioResponse;
@@ -70,7 +70,7 @@ public class UsuarioService implements IUsuarioService {
     public Usuario obtenerUsuarioPorID(Long id) {
         return usuarioRepository.findById(id).orElseThrow(
                 () -> new ErrorException404(
-                        ResponseConstants.mensajeEntidadNoExiste("Usuario", id.toString())
+                        GeneralConstants.mensajeEntidadNoExiste("Usuario", id.toString())
                 )
         );
     }
@@ -197,7 +197,7 @@ public class UsuarioService implements IUsuarioService {
                 .email(usuarioRequest.getEmail())
                 .password(passwordEncoder.encode(txtPassword))
                 .rol(usuarioRequest.getRol())
-                .estado(UsuarioConstants.ESTADO_DEFAULT)
+                .estado(GeneralConstants.ESTADO_DEFAULT)
                 .fechaCreacion(fechaActual)
                 .ultimaModificacion(fechaActual)
                 .imagenPerfil(imagenPerfil)
@@ -215,9 +215,10 @@ public class UsuarioService implements IUsuarioService {
         );
 
         // Retorno mensaje string
-        return ResponseConstants.mensajeEntidadCreada("Usuario");
+        return GeneralConstants.mensajeEntidadCreada("Usuario");
     }
 
+    @Transactional
     @Override
     public String modificarUsuario(Long id, UsuarioRequest2 usuarioRequest) {
 
@@ -307,12 +308,16 @@ public class UsuarioService implements IUsuarioService {
 
         // Falta implementar validación para el cambio de rol no permitiéndolo en caso tenga campaña activa
 
+        // Actualizar ultima modificacion de entidad
+        usuarioModificar.setUltimaModificacion(LocalDateTime.now());
+
         // Actualizar entidad en tabla
         usuarioRepository.save(usuarioModificar);
 
-        return ResponseConstants.mensajeEntidadActualizada("Usuario");
+        return GeneralConstants.mensajeEntidadActualizada("Usuario");
     }
 
+    @Transactional
     @Override
     public String modificarImagenUsuario(Long id, MultipartFile archivo) {
 
@@ -325,6 +330,9 @@ public class UsuarioService implements IUsuarioService {
         // Asignación de archivo actual
         Archivo archivoActual = usuarioModificar.getImagenPerfil();
 
+        // Actualizar ultima modificacion de entidad
+        usuarioModificar.setUltimaModificacion(LocalDateTime.now());
+
         // Si es un archivo compartido, se crea un nuevo archivo y se asigna al usuario
         if (archivoActual.getId().equals(UsuarioConstants.ID_ARCHIVO_DEFAULT)) {
             Archivo nuevoArchivo = archivoService.crearArchivo(archivo);
@@ -336,8 +344,7 @@ public class UsuarioService implements IUsuarioService {
             archivoService.modificarArchivo(archivoActual, archivo);
         }
 
-        return ResponseConstants.mensajeEntidadActualizada("Usuario");
+        return GeneralConstants.mensajeEntidadActualizada("Usuario");
     }
-
 
 }
