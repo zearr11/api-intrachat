@@ -18,12 +18,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /*
     @ExceptionHandler(ErrorException401.class)
     public ResponseEntity<GeneralResponse<?>> error401(ErrorException401 exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 ResponseConstruct.generarRespuestaConError(exception.getMessage())
         );
     }
+    */
 
     @ExceptionHandler(ErrorException404.class)
     public ResponseEntity<GeneralResponse<?>> error404(ErrorException404 exception) {
@@ -39,11 +41,13 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /*
     @ExceptionHandler(ErrorUsernameNotFoundException.class)
     public ResponseEntity<GeneralResponse<?>> usernameNotFoundException(ErrorUsernameNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 ResponseConstruct.generarRespuestaConError(exception.getMessage())
         );
     }
+    */
 
 }

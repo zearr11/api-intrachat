@@ -9,6 +9,8 @@ import com.api.intrachat.dto.generics.GeneralResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,19 +37,28 @@ public class AuthController {
 
     @PostMapping("/auth")
     public ResponseEntity<GeneralResponse<?>> auth(@RequestBody AuthRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+            String accessToken = jwtService.generarAccessToken(userDetails);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-
-        String accessToken = jwtService.generarAccessToken(userDetails);
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                ResponseConstruct.generarRespuestaExitosa(new AuthResponse(accessToken))
-        );
-
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    ResponseConstruct.generarRespuestaExitosa(new AuthResponse(accessToken))
+            );
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ResponseConstruct.generarRespuestaConError(
+                            "Credenciales inválidas."
+                    ));
+        } catch (DisabledException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ResponseConstruct.generarRespuestaConError(
+                            "El usuario se encuentra inactivo, contacte a un administrador."
+                    ));
+        }
     }
 
 }
