@@ -1,39 +1,35 @@
 package com.api.intrachat.models.campania;
 
-import com.api.intrachat.models.chat.Grupo;
 import com.api.intrachat.models.general.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "equipos")
+@Table(name = "operaciones")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Equipo {
+public class Operacion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private Integer numeroEquipo;
-
-    @Column(nullable = false)
     private Boolean estado;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_usuario")
-    private Usuario supervisor;
-
-    @OneToOne
-    @JoinColumn(name = "fk_id_grupo")
-    private Grupo grupo;
+    @JoinColumn(name = "fk_id_sede")
+    private Sede sede;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_operacion")
-    private Operacion operacion;
+    @JoinColumn(name = "fk_id_campania")
+    private Campania campania;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_id_usuario")
+    private Usuario jefeOperacion;
 
 }

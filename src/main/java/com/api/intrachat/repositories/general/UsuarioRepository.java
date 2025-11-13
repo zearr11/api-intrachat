@@ -15,12 +15,21 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("""
         SELECT u FROM Usuario u
+        JOIN u.persona p
         WHERE (:estado IS NULL OR u.estado = :estado)
         AND (:roles IS NULL OR u.rol IN :roles)
+        AND (
+            :filtro IS NULL OR :filtro = '' OR
+            LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+            LOWER(p.numeroDoc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+            LOWER(u.email) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+            LOWER(p.celular) LIKE LOWER(CONCAT('%', :filtro, '%'))
+        )
     """)
-    Page<Usuario> buscarPorEstadoYRoles(
+    Page<Usuario> buscarUsuariosConPaginacion(
             @Param("estado") Boolean estado,
             @Param("roles") List<Rol> roles,
+            @Param("filtro") String filtro,
             Pageable pageable
     );
 

@@ -43,10 +43,11 @@ public class UsuarioController {
     public ResponseEntity<GeneralResponse<?>> buscarUsuariosPaginado(
                     @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
                     @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
-                    @RequestParam(required = false) Boolean estado) {
+                    @RequestParam(required = false) Boolean estado,
+                    @RequestParam(required = false) String filtro) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(usuarioService.obtenerUsuariosPaginado(
-                        page, size, (estado == null || estado))
+                        page, size, (estado == null || estado), filtro)
                 )
         );
     }

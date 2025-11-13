@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 
 @Service
 public class UsuarioService implements IUsuarioService {
@@ -95,7 +96,8 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosPaginado(int page, int size, boolean estado) {
+    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosPaginado(int page, int size,
+                                                                            boolean estado, String filtro) {
 
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
@@ -106,22 +108,24 @@ public class UsuarioService implements IUsuarioService {
         List<Rol> roles = switch (usuarioActual.getRol()) {
             case ADMIN -> List.of(
                     Rol.ADMIN, Rol.SUPERVISOR_TI, Rol.AGENTE_TI,
-                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COORDINADOR,
-                    Rol.COLABORADOR
+                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COLABORADOR
             );
             case SUPERVISOR_TI -> List.of(
                     Rol.AGENTE_TI, Rol.JEFE_OPERACION, Rol.SUPERVISOR,
-                    Rol.COORDINADOR, Rol.COLABORADOR
+                    Rol.COLABORADOR
             );
             case AGENTE_TI -> List.of(
-                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COORDINADOR,
-                    Rol.COLABORADOR
+                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COLABORADOR
             );
             default -> List.of();
         };
 
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Usuario> listado = usuarioRepository.buscarPorEstadoYRoles(estado, roles, pageable);
+        Pageable pageable = PageRequest.of(
+                page - 1, size, Sort.by("persona.nombres")
+                        .ascending().and(Sort.by("persona.apellidos").ascending())
+        );
+
+        Page<Usuario> listado = usuarioRepository.buscarUsuariosConPaginacion(estado, roles, filtro, pageable);
 
         List<UsuarioResponse> usuarios = listado.getContent()
                 .stream()

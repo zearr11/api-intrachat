@@ -19,11 +19,11 @@ public class AppConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns("*")
-                        .allowedMethods("*") // GET POST PUT DELETE
-                        .allowedHeaders("*") // ALL HEADERS
-                        .allowCredentials(true); // ALLOW CREDENTIALS
+                registry.addMapping("/api/**") // tus endpoints
+                        .allowedOrigins("http://localhost:4200") // origen Angular
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true); // si usas cookies o autenticación
             }
         };
     }

@@ -6,6 +6,5 @@ public enum Rol {
     AGENTE_TI,
     JEFE_OPERACION,
     SUPERVISOR,
-    COORDINADOR,
     COLABORADOR
 }
