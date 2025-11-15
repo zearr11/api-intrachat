@@ -38,34 +38,15 @@ public class CampaniaController {
         ));
     }
 
-    // Lista Normal - http://localhost:9890/api/v1/campanias/sedes/idsede
-    @GetMapping("/sedes/{idSede}")
-    public ResponseEntity<GeneralResponse<?>> buscarCampaniasPorSede(@PathVariable Long idSede) {
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
-                campaniaService.obtenerCampaniasPorSede(idSede).stream()
-                        .map(CampaniaMapper::campaniaResponse).toList()
-        ));
-    }
-
     // Lista Paginada - http://localhost:9890/api/v1/campanias/paginacion
     @GetMapping("/paginacion")
     public ResponseEntity<GeneralResponse<?>> buscarCampaniasPaginado(
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
             @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
-            @RequestParam(required = false) Boolean estado) {
+            @RequestParam(required = false) Boolean estado, @RequestParam(required = false) String filtro) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
-                campaniaService.obtenerCampaniasPaginado(page, size, (estado == null || estado))
+                campaniaService.obtenerCampaniasPaginado(page, size, (estado == null || estado), filtro)
         ));
-    }
-
-    // Mensaje - http://localhost:9890/api/v1/campanias/idcampania/sedes/idsede
-    @PostMapping("/{idCampania}/sedes/{idSede}")
-    public ResponseEntity<GeneralResponse<?>> agregarSedeACampania(@PathVariable Long idCampania,
-                                                                   @PathVariable Long idSede) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ResponseConstruct.generarRespuestaExitosa(
-                        campaniaService.agregarSedeACampania(idCampania, idSede)
-                ));
     }
 
     // Mensaje - http://localhost:9890/api/v1/campanias

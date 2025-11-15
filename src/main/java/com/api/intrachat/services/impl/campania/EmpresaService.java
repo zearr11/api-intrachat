@@ -2,6 +2,7 @@ package com.api.intrachat.services.impl.campania;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.EmpresaRequest;
+import com.api.intrachat.dto.request.EmpresaRequest2;
 import com.api.intrachat.dto.response.EmpresaResponse;
 import com.api.intrachat.models.campania.Empresa;
 import com.api.intrachat.repositories.campania.EmpresaRepository;
@@ -44,14 +45,15 @@ public class EmpresaService implements IEmpresaService {
     }
 
     @Override
-    public PaginatedResponse<List<EmpresaResponse>> obtenerEmpresasPaginado(int page, int size) {
+    public PaginatedResponse<List<EmpresaResponse>> obtenerEmpresasPaginado(int page, int size,
+                                                                            boolean estado, String filtro) {
 
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Empresa> listado = empresaRepository.findAll(pageable);
+        Page<Empresa> listado = empresaRepository.buscarPorFiltro(filtro, estado, pageable);
 
         List<EmpresaResponse> empresas = listado.getContent()
                 .stream()
@@ -76,14 +78,16 @@ public class EmpresaService implements IEmpresaService {
 
         Empresa nuevaEmpresa = Empresa.builder()
                 .nombre(empresaRequest.getNombre())
+                .estado(GeneralConstants.ESTADO_DEFAULT)
                 .build();
+
         empresaRepository.save(nuevaEmpresa);
 
         return GeneralConstants.mensajeEntidadCreada("Empresa");
     }
 
     @Override
-    public String modificarEmpresa(Long id, EmpresaRequest empresaRequest) {
+    public String modificarEmpresa(Long id, EmpresaRequest2 empresaRequest) {
 
         Empresa empresaActualizar = obtenerEmpresaPorID(id);
 
@@ -95,6 +99,11 @@ public class EmpresaService implements IEmpresaService {
                 throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
 
             empresaActualizar.setNombre(empresaRequest.getNombre());
+        }
+
+        // Estado
+        if (empresaRequest.getEstado() != null) {
+            empresaActualizar.setEstado(empresaRequest.getEstado());
         }
 
         empresaRepository.save(empresaActualizar);

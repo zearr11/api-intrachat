@@ -11,5 +11,6 @@ public class EmpresaResponse {
 
     private Long id;
     private String empresa;
+    private Boolean estado;
 
 }

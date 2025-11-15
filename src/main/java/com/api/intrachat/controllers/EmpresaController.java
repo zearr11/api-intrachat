@@ -2,6 +2,7 @@ package com.api.intrachat.controllers;
 
 import com.api.intrachat.dto.generics.GeneralResponse;
 import com.api.intrachat.dto.request.EmpresaRequest;
+import com.api.intrachat.dto.request.EmpresaRequest2;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constructs.ResponseConstruct;
@@ -41,10 +42,11 @@ public class EmpresaController {
     @GetMapping("/paginacion")
     public ResponseEntity<GeneralResponse<?>> buscarEmpresasPaginado(
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
-            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size) {
+            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
+            @RequestParam(required = false) Boolean estado, @RequestParam(required = false) String filtro) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(
-                        empresaService.obtenerEmpresasPaginado(page, size)
+                        empresaService.obtenerEmpresasPaginado(page, size, (estado == null || estado), filtro)
                 )
         );
     }
@@ -62,7 +64,7 @@ public class EmpresaController {
     // Mensaje - http://localhost:9890/api/v1/empresas/id
     @PutMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> actualizarEmpresa(@PathVariable Long id,
-                                                                @RequestBody EmpresaRequest empresaRequest) {
+                                                                @RequestBody EmpresaRequest2 empresaRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(
                         empresaService.modificarEmpresa(id, empresaRequest)

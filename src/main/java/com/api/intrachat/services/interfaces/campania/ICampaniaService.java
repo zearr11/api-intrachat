@@ -13,11 +13,12 @@ public interface ICampaniaService {
     Campania obtenerCampaniaPorNombre(String nombre);
 
     List<Campania> obtenerCampaniasPorEmpresa(Long idEmpresa);
-    List<Campania> obtenerCampaniasPorSede(Long idSede);
+    // List<Campania> obtenerCampaniasPorSede(Long idSede);
 
-    PaginatedResponse<List<CampaniaResponse>> obtenerCampaniasPaginado(int page, int size, boolean estado);
+    PaginatedResponse<List<CampaniaResponse>> obtenerCampaniasPaginado(int page, int size,
+                                                                       boolean estado, String filtro);
 
-    String agregarSedeACampania(Long idCampania, Long idSede);
+    // String agregarSedeACampania(Long idCampania, Long idSede);
     String crearCampania(CampaniaRequest campaniaRequest);
     String modificarCampania(Long id, CampaniaRequest2 campaniaRequest);
 

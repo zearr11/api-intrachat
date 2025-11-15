@@ -21,6 +21,9 @@ public class Integrante {
     @Column(nullable = false)
     private Permiso permiso;
 
+    @Column(nullable = false)
+    private Boolean estado;
+
     @ManyToOne
     @JoinColumn(name = "fk_id_usuario")
     private Usuario usuario;

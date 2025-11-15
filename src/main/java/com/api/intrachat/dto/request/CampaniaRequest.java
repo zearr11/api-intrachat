@@ -1,5 +1,6 @@
 package com.api.intrachat.dto.request;
 
+import com.api.intrachat.utils.enums.AreaAtencion;
 import com.api.intrachat.utils.enums.MedioComunicacion;
 import lombok.*;
 
@@ -11,10 +12,9 @@ import lombok.*;
 public class CampaniaRequest {
 
     private String nombre;
-
     private Long idEmpresa;
-    private Long idArea;
 
+    private AreaAtencion areaAtencion;
     private MedioComunicacion medioComunicacion;
 
 }

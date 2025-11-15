@@ -10,7 +10,7 @@ public class CampaniaMapper {
                 campania.getId(),
                 campania.getNombre(),
                 EmpresaMapper.empresaResponse(campania.getEmpresa()),
-                AreaMapper.areaResponse(campania.getArea()),
+                campania.getAreaAtencion(),
                 campania.getMedioComunicacion(),
                 campania.getEstado(),
                 campania.getFechaCreacion(),

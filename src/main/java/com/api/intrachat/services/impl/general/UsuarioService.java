@@ -19,7 +19,6 @@ import com.api.intrachat.utils.constants.UsuarioConstants;
 import com.api.intrachat.dto.request.UsuarioRequest;
 import com.api.intrachat.dto.response.UsuarioResponse;
 import com.api.intrachat.dto.generics.PaginatedResponse;
-import com.api.intrachat.utils.enums.Rol;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
 import com.api.intrachat.utils.mappers.UsuarioMapper;
 import com.api.intrachat.utils.validations.DNIValidacion;
@@ -105,27 +104,12 @@ public class UsuarioService implements IUsuarioService {
 
         Usuario usuarioActual = obtenerUsuarioActual();
 
-        List<Rol> roles = switch (usuarioActual.getRol()) {
-            case ADMIN -> List.of(
-                    Rol.ADMIN, Rol.SUPERVISOR_TI, Rol.AGENTE_TI,
-                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COLABORADOR
-            );
-            case SUPERVISOR_TI -> List.of(
-                    Rol.AGENTE_TI, Rol.JEFE_OPERACION, Rol.SUPERVISOR,
-                    Rol.COLABORADOR
-            );
-            case AGENTE_TI -> List.of(
-                    Rol.JEFE_OPERACION, Rol.SUPERVISOR, Rol.COLABORADOR
-            );
-            default -> List.of();
-        };
-
         Pageable pageable = PageRequest.of(
                 page - 1, size, Sort.by("persona.nombres")
                         .ascending().and(Sort.by("persona.apellidos").ascending())
         );
 
-        Page<Usuario> listado = usuarioRepository.buscarUsuariosConPaginacion(estado, roles, filtro, pageable);
+        Page<Usuario> listado = usuarioRepository.buscarUsuariosConPaginacion(estado, usuarioActual.getId(), filtro, pageable);
 
         List<UsuarioResponse> usuarios = listado.getContent()
                 .stream()
@@ -203,11 +187,12 @@ public class UsuarioService implements IUsuarioService {
         usuarioRepository.save(nuevoUsuario);
 
         // Envío de credenciales
+        /*
         emailService.enviarCredencialesACorreo(
                 nuevoUsuario.getEmail(), UsuarioConstants.ASUNTO_DEFAULT_BIENVENIDA_EMAIL,
                 nuevoUsuario.getPersona().getNombres(), nuevoUsuario.getPersona().getApellidos(),
                 txtPassword
-        );
+        ); */
 
         // Retorno mensaje string
         return GeneralConstants.mensajeEntidadCreada("Usuario");

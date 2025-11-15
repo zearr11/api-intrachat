@@ -7,8 +7,9 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class PaisRequest {
+public class EmpresaRequest2 {
 
     private String nombre;
+    private Boolean estado;
 
 }

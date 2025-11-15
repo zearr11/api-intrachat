@@ -1,6 +1,7 @@
 package com.api.intrachat.models.campania;
 
 import com.api.intrachat.models.general.Usuario;
+import com.api.intrachat.utils.enums.Permiso;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -22,6 +23,10 @@ public class EquipoUsuarios {
     private LocalDateTime fechaInicio;
 
     private LocalDateTime fechaFin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Permiso permiso;
 
     @Column(nullable = false)
     private Boolean estado;

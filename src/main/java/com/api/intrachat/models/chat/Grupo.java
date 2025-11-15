@@ -36,4 +36,7 @@ public class Grupo {
     @Column(nullable = false)
     private LocalDateTime ultimaModificacion;
 
+    @Column(nullable = false)
+    private Boolean estado;
+
 }

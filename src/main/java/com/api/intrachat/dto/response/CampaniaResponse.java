@@ -1,5 +1,6 @@
 package com.api.intrachat.dto.response;
 
+import com.api.intrachat.utils.enums.AreaAtencion;
 import com.api.intrachat.utils.enums.MedioComunicacion;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public class CampaniaResponse {
     private String nombre;
 
     private EmpresaResponse empresa;
-    private AreaResponse area;
+    private AreaAtencion areaAtencion;
 
     private MedioComunicacion medioComunicacion;
     private Boolean estado;

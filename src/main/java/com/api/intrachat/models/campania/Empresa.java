@@ -19,4 +19,7 @@ public class Empresa {
     @Column(nullable = false)
     private String nombre;
 
+    @Column(nullable = false)
+    private Boolean estado;
+
 }
