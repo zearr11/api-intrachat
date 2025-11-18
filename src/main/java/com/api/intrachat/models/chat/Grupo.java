@@ -25,7 +25,7 @@ public class Grupo {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "fk_id_archivo")
     private Archivo imagenGrupo;
 

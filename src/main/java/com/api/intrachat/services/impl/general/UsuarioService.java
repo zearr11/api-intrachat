@@ -97,7 +97,6 @@ public class UsuarioService implements IUsuarioService {
     @Override
     public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosPaginado(int page, int size,
                                                                             boolean estado, String filtro) {
-
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }

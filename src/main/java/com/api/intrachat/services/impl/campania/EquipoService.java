@@ -3,6 +3,9 @@ package com.api.intrachat.services.impl.campania;
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.EquipoRequest;
 import com.api.intrachat.dto.response.EquipoResponse;
+import com.api.intrachat.dto.response.UsuarioEquipoResponse;
+import com.api.intrachat.utils.constants.PaginatedConstants;
+import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.models.campania.Equipo;
 import com.api.intrachat.repositories.campania.EquipoRepository;
@@ -36,9 +39,24 @@ public class EquipoService implements IEquipoService {
     }
 
     @Override
-    public PaginatedResponse<List<EquipoResponse>> obtenerEquiposPaginado(int page, int size, int numeroEquipo,
-                                                                          Long idGrupo, Long idCampania, Long idSede,
-                                                                          Long idUsuario) {
+    public PaginatedResponse<List<UsuarioEquipoResponse>> obtenerUsuariosEquipoPaginado(int page, int size,
+                                                                                        boolean estado, Long idCampania,
+                                                                                        Long idOperacion, Long idEquipo) {
+        if (page < 1 || size < 1) {
+            throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
+        }
+
+        return null;
+    }
+
+    @Override
+    public PaginatedResponse<List<EquipoResponse>> obtenerEquiposPaginado(int page, int size,
+                                                                          boolean estado, Long idCampania,
+                                                                          Long idOperacion, Long idSupervisor) {
+        if (page < 1 || size < 1) {
+            throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
+        }
+
         return null;
     }
 
@@ -48,7 +66,22 @@ public class EquipoService implements IEquipoService {
     }
 
     @Override
-    public String finalizarRealacionDeUsuarioConEquipo(Long idEquipo, Long idUsuario) {
+    public String deshabilitarEquipo(Long idEquipo) {
+        return "";
+    }
+
+    @Override
+    public String agregarUsuarioAEquipo(Long idEquipo, Long idUsuario) {
+        return "";
+    }
+
+    @Override
+    public String cambiarPermisoDeUsuarioEnEquipo(Long idEquipo, Long idUsuario) {
+        return "";
+    }
+
+    @Override
+    public String finalizarRelacionDeUsuarioConEquipo(Long idEquipo, Long idUsuario) {
         return "";
     }
 

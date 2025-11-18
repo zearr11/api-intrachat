@@ -16,6 +16,7 @@ import com.api.intrachat.utils.mappers.EmpresaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,7 +53,7 @@ public class EmpresaService implements IEmpresaService {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombre").ascending());
         Page<Empresa> listado = empresaRepository.buscarPorFiltro(filtro, estado, pageable);
 
         List<EmpresaResponse> empresas = listado.getContent()

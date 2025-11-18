@@ -18,6 +18,7 @@ import com.api.intrachat.utils.mappers.CampaniaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,7 +67,7 @@ public class CampaniaService implements ICampaniaService {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombre").ascending());
         Page<Campania> listado = campaniaRepository.buscarPorFiltro(estado, filtro, pageable);
 
         List<CampaniaResponse> campanias = listado.getContent()
