@@ -1,7 +1,7 @@
 package com.api.intrachat.utils.enums;
 
 public enum TipoMensaje {
-    PUBLICACION,
+    MSG_IMAGEN,
     MSG_TEXTO,
     MSG_ARCHIVO
 }

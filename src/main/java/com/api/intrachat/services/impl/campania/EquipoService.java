@@ -12,7 +12,6 @@ import com.api.intrachat.repositories.campania.EquipoRepository;
 import com.api.intrachat.services.interfaces.campania.IEquipoService;
 import com.api.intrachat.utils.constants.GeneralConstants;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service

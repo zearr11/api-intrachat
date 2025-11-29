@@ -1,4 +1,4 @@
-package com.api.intrachat.controllers;
+package com.api.intrachat.controllers.rest;
 
 import com.api.intrachat.services.impl.CustomUserDetailsService;
 import com.api.intrachat.services.interfaces.other.IJwtService;
@@ -6,7 +6,6 @@ import com.api.intrachat.utils.constructs.ResponseConstruct;
 import com.api.intrachat.dto.request.AuthRequest;
 import com.api.intrachat.dto.response.AuthResponse;
 import com.api.intrachat.dto.generics.GeneralResponse;
-import com.api.intrachat.utils.enums.Rol;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

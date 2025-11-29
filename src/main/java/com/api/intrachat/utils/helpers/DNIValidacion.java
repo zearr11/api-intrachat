@@ -1,4 +1,4 @@
-package com.api.intrachat.utils.validations;
+package com.api.intrachat.utils.helpers;
 
 import com.api.intrachat.utils.enums.TipoDoc;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;

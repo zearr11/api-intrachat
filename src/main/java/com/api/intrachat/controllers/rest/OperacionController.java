@@ -1,4 +1,4 @@
-package com.api.intrachat.controllers;
+package com.api.intrachat.controllers.rest;
 
 import com.api.intrachat.dto.generics.GeneralResponse;
 import com.api.intrachat.dto.request.OperacionRequest;

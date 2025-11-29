@@ -21,7 +21,7 @@ import com.api.intrachat.dto.response.UsuarioResponse;
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
 import com.api.intrachat.utils.mappers.UsuarioMapper;
-import com.api.intrachat.utils.validations.DNIValidacion;
+import com.api.intrachat.utils.helpers.DNIValidacion;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,6 +92,13 @@ public class UsuarioService implements IUsuarioService {
                 ));
 
         return usuarioRepository.findByPersona(persona);
+    }
+
+    @Override
+    public List<Usuario> buscarContactosPorCampania(String filtro, Long idCampania, Long idUsuarioAExcluir) {
+        return usuarioRepository.buscarContactosPorCampania(
+                filtro, idCampania, idUsuarioAExcluir
+        );
     }
 
     @Override

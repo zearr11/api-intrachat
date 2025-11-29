@@ -1,12 +1,10 @@
 package com.api.intrachat.config;
 
-import com.api.intrachat.utils.enums.Rol;
 import com.api.intrachat.utils.interceptors.JwtAuthenticationFilter;
 import com.api.intrachat.services.impl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -47,6 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Acceso JWT
                         .requestMatchers(appPrefix + "/auth").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/test/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm ->

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
@@ -33,5 +35,27 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
     Usuario findByPersona(Persona persona);
+
+    @Query("""
+        SELECT DISTINCT u FROM Usuario u
+        JOIN EquipoUsuarios eu ON eu.usuario = u
+        JOIN Equipo e ON eu.equipo = e
+        JOIN Operacion o ON e.operacion = o
+        JOIN Campania c ON o.campania = c
+        WHERE c.id = :idCampania
+          AND u.id <> :idUsuarioExcluir
+          AND u.estado = true
+          AND eu.estado = true
+          AND e.estado = true
+          AND o.estado = true
+          AND c.estado = true
+          AND LOWER(CONCAT(u.persona.nombres, ' ', u.persona.apellidos))
+              LIKE LOWER(CONCAT('%', :filtro, '%'))
+    """)
+    List<Usuario> buscarContactosPorCampania(
+            @Param("filtro") String filtro,
+            @Param("idCampania") Long idCampania,
+            @Param("idUsuarioExcluir") Long idUsuarioExcluir
+    );
 
 }
