@@ -4,6 +4,7 @@ import com.api.intrachat.dto.request.IntegranteRequest;
 import com.api.intrachat.dto.request.SalaRequest;
 import com.api.intrachat.dto.request.customized.ChatRequest;
 import com.api.intrachat.dto.response.GrupoResponse;
+import com.api.intrachat.dto.response.MensajeResponse;
 import com.api.intrachat.dto.response.SalaResponse;
 import com.api.intrachat.dto.response.customized.contact.ContactoResponse;
 import com.api.intrachat.dto.response.customized.contact.DatosGrupoResponse;
@@ -157,7 +158,7 @@ public class ChatService {
 
                 switch (ultimoMensajeDeSala.getTipo()) {
                     case MSG_TEXTO -> nuevoTexto += mensajeService
-                            .obtenerTextoDeMensaje(ultimoMensajeDeSala.getId());
+                            .obtenerTextoDeMensaje(ultimoMensajeDeSala.getId()).getContenido();
                     case MSG_IMAGEN -> nuevoTexto += ultimoMensajeEsDeUsuarioActual
                             ? "Enviaste una imagen." : "Envió una imagen.";
                     case MSG_ARCHIVO -> nuevoTexto += ultimoMensajeEsDeUsuarioActual
@@ -208,7 +209,7 @@ public class ChatService {
 
                 switch (ultimoMensajeSala.getTipo()) {
                     case MSG_TEXTO -> nuevoTexto += mensajeService
-                            .obtenerTextoDeMensaje(ultimoMensajeSala.getId());
+                            .obtenerTextoDeMensaje(ultimoMensajeSala.getId()).getContenido();
                     case MSG_IMAGEN -> nuevoTexto += mensajeEsDeUsuarioLogeado
                             ? "Enviaste una imagen." : "Envió una imagen.";
                     case MSG_ARCHIVO -> nuevoTexto += mensajeEsDeUsuarioLogeado
@@ -274,6 +275,7 @@ public class ChatService {
 
         ChatResponse respuesta = new ChatResponse(
                 salaPrivada.getId(),
+                nuevoMensaje.getId(),
                 UsuarioMapper.usuarioResponse(usuarioActual),
                 UsuarioMapper.usuarioResponse(usuarioDestino),
                 null,
@@ -286,6 +288,12 @@ public class ChatService {
 
         simpMessagingTemplate.convertAndSendToUser(
                 respuesta.getUsuarioDestino().getId().toString(),
+                "/queue/messages",
+                respuesta
+        );
+
+        simpMessagingTemplate.convertAndSendToUser(
+                respuesta.getUsuarioRemitente().getId().toString(),
                 "/queue/messages",
                 respuesta
         );
@@ -328,6 +336,7 @@ public class ChatService {
 
         ChatResponse respuesta = new ChatResponse(
                 salaGrupal.getId(),
+                nuevoMensaje.getId(),
                 UsuarioMapper.usuarioResponse(usuarioActual),
                 null,
                 grupoResponse,

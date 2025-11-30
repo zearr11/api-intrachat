@@ -2,6 +2,7 @@ package com.api.intrachat.services.interfaces.chat;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.response.MensajeResponse;
+import com.api.intrachat.models.chat.Fichero;
 import com.api.intrachat.models.chat.Mensaje;
 import com.api.intrachat.models.chat.Texto;
 import com.api.intrachat.models.general.Archivo;
@@ -17,6 +18,6 @@ public interface IMensajeService {
 
     // Entidad Texto
     Texto obtenerTextoDeMensaje(Long idMensaje);
-    Archivo obtenerArchivoDeMensaje(Long idMensaje);
+    Fichero obtenerFicheroDeMensaje(Long idMensaje);
 
 }

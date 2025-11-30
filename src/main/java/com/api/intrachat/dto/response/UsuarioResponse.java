@@ -35,5 +35,6 @@ public class UsuarioResponse {
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimaModificacion;
     private Boolean estado;
+    private String informacion;
 
 }

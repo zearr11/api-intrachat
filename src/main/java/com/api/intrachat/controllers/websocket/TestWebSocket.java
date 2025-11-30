@@ -27,6 +27,7 @@ public class TestWebSocket {
                         null,
                         null,
                         null,
+                        null,
                         "Prueba OKKK",
                         LocalDateTime.now()
                 )
@@ -36,6 +37,7 @@ public class TestWebSocket {
     @GetMapping("/group")
     public void test2() {
         ChatResponse prueba = new ChatResponse(1L,
+                null,
                 null,
                 null,
                 null,

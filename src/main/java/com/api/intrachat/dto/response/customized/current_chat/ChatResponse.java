@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class ChatResponse {
 
     private Long idSala; // Obligatorio
+    private Long idMensaje; // Obligatorio
     private UsuarioResponse usuarioRemitente; // Obligatorio
     private UsuarioResponse usuarioDestino; // Solo si es mensaje privado
     private GrupoResponse grupoDestino; // Solo si es mensaje grupal

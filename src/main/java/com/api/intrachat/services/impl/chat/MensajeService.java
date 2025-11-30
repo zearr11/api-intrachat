@@ -2,6 +2,7 @@ package com.api.intrachat.services.impl.chat;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.response.MensajeResponse;
+import com.api.intrachat.models.chat.Fichero;
 import com.api.intrachat.models.chat.Mensaje;
 import com.api.intrachat.models.chat.Texto;
 import com.api.intrachat.models.general.Archivo;
@@ -64,9 +65,13 @@ public class MensajeService implements IMensajeService {
         List<MensajeResponse> mensajes = listado.getContent()
                 .stream()
                 .map(mensaje -> {
-                    Archivo archivo = obtenerArchivoDeMensaje(mensaje.getId());
+                    Fichero fichero = obtenerFicheroDeMensaje(mensaje.getId());
                     Texto texto = obtenerTextoDeMensaje(mensaje.getId());
-                    return MensajeMapper.mensajeResponse(mensaje, archivo, texto);
+                    return MensajeMapper.mensajeResponse(
+                            mensaje,
+                            fichero == null ? null : fichero.getArchivo(),
+                            texto
+                    );
                 })
                 .toList();
 
@@ -86,7 +91,7 @@ public class MensajeService implements IMensajeService {
     }
 
     @Override
-    public Archivo obtenerArchivoDeMensaje(Long idMensaje) {
-        return ficheroRepository.findByMensaje(obtenerMensajePorId(idMensaje)).getArchivo();
+    public Fichero obtenerFicheroDeMensaje(Long idMensaje) {
+        return ficheroRepository.findByMensaje(obtenerMensajePorId(idMensaje)).orElse(null);
     }
 }

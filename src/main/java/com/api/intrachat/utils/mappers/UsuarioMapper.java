@@ -19,7 +19,8 @@ public class UsuarioMapper {
                 usuario.getRol(),
                 usuario.getFechaCreacion(),
                 usuario.getUltimaModificacion(),
-                usuario.getEstado()
+                usuario.getEstado(),
+                usuario.getPersona().getInformacion()
         );
     }
 
