@@ -5,7 +5,6 @@ import com.api.intrachat.dto.response.MensajeResponse;
 import com.api.intrachat.models.chat.Fichero;
 import com.api.intrachat.models.chat.Mensaje;
 import com.api.intrachat.models.chat.Texto;
-import com.api.intrachat.models.general.Archivo;
 import com.api.intrachat.repositories.chat.FicheroRepository;
 import com.api.intrachat.repositories.chat.MensajeRepository;
 import com.api.intrachat.repositories.chat.TextoRepository;

@@ -2,12 +2,12 @@ package com.api.intrachat.utils.constructs;
 
 import java.util.Random;
 
-public class PasswordRandomConstruct {
+public class RandomConstruct {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     private static final int PASSWORD_LENGTH = 12;
 
-    public static String generarPassword() {
+    public static String generarCadenaAleatoria() {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
 

@@ -9,6 +9,7 @@ import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +42,10 @@ public class ArchivoService implements IArchivoService {
         // Realiza la validación si el archivo es valido, sino lanza exception
         verificarArchivoValido(archivo);
 
+        boolean esImagen = esImagen(archivo);
+
         // Subida de archivo a Cloudinary
-        final String secureUrl = cloudinaryService.subirArchivo(archivo);
+        final String secureUrl = cloudinaryService.subirArchivo(archivo, esImagen);
 
         Archivo nuevoArchivo = Archivo.builder()
                 .nombre(archivo.getOriginalFilename())
@@ -68,8 +71,10 @@ public class ArchivoService implements IArchivoService {
         // Eliminación del archivo en cloudinary
         cloudinaryService.eliminarArchivo(archivoActual.getUrl());
 
+        boolean esImagen = esImagen(archivo);
+
         // Subida de nuevo archivo a cloudinary y obtención del nuevo url
-        final String secureUrl = cloudinaryService.subirArchivo(archivo);
+        final String secureUrl = cloudinaryService.subirArchivo(archivo, esImagen);
 
         // Reasignación de nuevos atributos
         archivoActual.setUrl(secureUrl);
@@ -97,7 +102,7 @@ public class ArchivoService implements IArchivoService {
 
     // publico
     @Override
-    public void esArchivoImagen(MultipartFile archivo) {
+    public void validarImagen(MultipartFile archivo) {
         String tipoArchivo = archivo.getContentType();
         String nombreArchivo = archivo.getOriginalFilename();
 
@@ -131,50 +136,40 @@ public class ArchivoService implements IArchivoService {
                     "No se pudo procesar el archivo de imagen."
             );
         }
-
     }
 
     // publico
     @Override
-    public void esOtroTipoDeArchivo(MultipartFile archivo) {
-
+    public boolean esImagen(MultipartFile archivo) {
         String tipoArchivo = archivo.getContentType();
         String nombreArchivo = archivo.getOriginalFilename();
 
         if (archivo.isEmpty()) {
-            throw new ErrorException400("Debe subir un archivo.");
+            return false;
         }
 
-        if (tipoArchivo == null || nombreArchivo == null) {
-            throw new ErrorException400("El archivo no es válido.");
+        // 1) Revisión por MIME type
+        if (tipoArchivo != null && tipoArchivo.startsWith("image/")) {
+            return true;
         }
 
-        List<String> tiposPermitidos = List.of(
-                "application/pdf",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-                "application/msword", // .doc
-                "text/plain",         // .txt
-                "application/vnd.ms-excel", // .xls
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
-        );
-
-        if (!tiposPermitidos.contains(tipoArchivo)) {
-            throw new ErrorException400(
-                    "El tipo de archivo no está permitido. Solo se admiten PDF, Word, Excel o TXT."
-            );
+        // 2) Revisión por extensión
+        if (nombreArchivo != null &&
+                (nombreArchivo.endsWith(".jpg") ||
+                        nombreArchivo.endsWith(".jpeg") ||
+                        nombreArchivo.endsWith(".png") ||
+                        nombreArchivo.endsWith(".gif") ||
+                        nombreArchivo.endsWith(".bmp") ||
+                        nombreArchivo.endsWith(".webp"))) {
+            return true;
         }
 
-        if (!(nombreArchivo.toLowerCase().endsWith(".pdf")
-                || nombreArchivo.toLowerCase().endsWith(".doc")
-                || nombreArchivo.toLowerCase().endsWith(".docx")
-                || nombreArchivo.toLowerCase().endsWith(".xls")
-                || nombreArchivo.toLowerCase().endsWith(".xlsx")
-                || nombreArchivo.toLowerCase().endsWith(".txt"))) {
-            throw new ErrorException400(
-                    "El archivo debe tener una extensión válida (.pdf, .doc, .docx, .xls, .xlsx, .txt)."
-            );
+        // 3) Revisión por contenido real
+        try (InputStream input = archivo.getInputStream()) {
+            return ImageIO.read(input) != null; // si se puede leer = es imagen
+        } catch (IOException e) {
+            return false;
         }
-
     }
 
 }

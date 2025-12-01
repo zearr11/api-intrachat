@@ -4,8 +4,8 @@ import com.api.intrachat.dto.request.IntegranteRequest;
 import com.api.intrachat.dto.request.SalaRequest;
 import com.api.intrachat.dto.request.customized.ChatRequest;
 import com.api.intrachat.dto.response.GrupoResponse;
-import com.api.intrachat.dto.response.MensajeResponse;
 import com.api.intrachat.dto.response.SalaResponse;
+import com.api.intrachat.dto.response.customized.ArchivoResponse;
 import com.api.intrachat.dto.response.customized.contact.ContactoResponse;
 import com.api.intrachat.dto.response.customized.contact.DatosGrupoResponse;
 import com.api.intrachat.dto.response.customized.contact.DatosMensajeResponse;
@@ -14,17 +14,22 @@ import com.api.intrachat.dto.response.customized.current_chat.ChatResponse;
 import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.models.campania.EquipoUsuarios;
 import com.api.intrachat.models.chat.*;
+import com.api.intrachat.models.general.Archivo;
 import com.api.intrachat.models.general.Usuario;
 import com.api.intrachat.repositories.campania.EquipoUsuariosRepository;
+import com.api.intrachat.repositories.chat.FicheroRepository;
 import com.api.intrachat.repositories.chat.MensajeRepository;
 import com.api.intrachat.repositories.chat.TextoRepository;
 import com.api.intrachat.services.interfaces.chat.IGrupoService;
 import com.api.intrachat.services.interfaces.chat.IMensajeService;
 import com.api.intrachat.services.interfaces.chat.ISalaService;
+import com.api.intrachat.services.interfaces.general.IArchivoService;
 import com.api.intrachat.services.interfaces.general.IUsuarioService;
 import com.api.intrachat.utils.enums.Permiso;
+import com.api.intrachat.utils.enums.TipoMensaje;
 import com.api.intrachat.utils.enums.TipoSala;
 import com.api.intrachat.utils.helpers.UsuarioHelper;
+import com.api.intrachat.utils.mappers.SalaMapper;
 import com.api.intrachat.utils.mappers.UsuarioMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -41,30 +46,145 @@ public class ChatService {
     private final MensajeRepository mensajeRepository;
     private final TextoRepository textoRepository;
     private final EquipoUsuariosRepository equipoUsuariosRepository;
+    private final FicheroRepository ficheroRepository;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final IUsuarioService usuarioService;
     private final ISalaService salaService;
     private final IMensajeService mensajeService;
     private final IGrupoService grupoService;
+    private final IArchivoService archivoService;
 
     public ChatService(MensajeRepository mensajeRepository,
                        TextoRepository textoRepository,
                        EquipoUsuariosRepository equipoUsuariosRepository,
+                       FicheroRepository ficheroRepository,
                        SimpMessagingTemplate simpMessagingTemplate,
                        IUsuarioService usuarioService, ISalaService salaService,
-                       IMensajeService mensajeService, IGrupoService grupoService) {
+                       IMensajeService mensajeService, IGrupoService grupoService,
+                       IArchivoService archivoService) {
         this.mensajeRepository = mensajeRepository;
         this.textoRepository = textoRepository;
         this.equipoUsuariosRepository = equipoUsuariosRepository;
+        this.ficheroRepository = ficheroRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.usuarioService = usuarioService;
         this.salaService = salaService;
         this.mensajeService = mensajeService;
         this.grupoService = grupoService;
+        this.archivoService = archivoService;
     }
 
-    public List<ContactoResponse> obtenerContactosSinChatPrevio(String filtro) {
+    private boolean usuarioCoincideConFiltro(String filtro, Usuario contactoPresente) {
+        boolean pasaFiltro = true;
+
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            String filtroLower = filtro.toLowerCase();
+
+            String nombres = contactoPresente.getPersona().getNombres();
+            String apellidos = contactoPresente.getPersona().getApellidos();
+
+            String nombreCompleto = (nombres + " " + apellidos).toLowerCase();
+
+            pasaFiltro = nombreCompleto.contains(filtroLower);
+        }
+        return pasaFiltro;
+    }
+
+    public List<ContactoResponse> obtenerContactosConChatsRecientes(String filtro) {
+        Usuario usuarioLogeado = usuarioService.obtenerUsuarioActual();
+        List<Sala> salasDeUsuarioActual = salaService.obtenerSalasPorUsuario(usuarioLogeado.getId());
+        List<ContactoResponse> contactosPreviosDeUsuario = new ArrayList<>();
+
+        for (Sala sala : salasDeUsuarioActual) {
+            TipoSala tipoSala = sala.getTipoSala();
+
+            // Chat entre 2 personas
+            if (tipoSala == TipoSala.PRIVADO) {
+                Optional<Usuario> contacto = salaService.obtenerIntegrantesDeSala(sala.getId())
+                        .stream()
+                        .map(Integrante::getUsuario)
+                        .filter(usuario -> !usuario.getId().equals(usuarioLogeado.getId()))
+                        .findFirst();
+
+                if (contacto.isPresent()) {
+                    Usuario contactoPresente = contacto.get();
+
+                    boolean pasaFiltro = usuarioCoincideConFiltro(filtro, contactoPresente);
+
+                    if (pasaFiltro) {
+                        contactosPreviosDeUsuario.add(
+                                generarContactoResponseChatPrivado(contactoPresente, usuarioLogeado)
+                        );
+                    }
+                }
+            }
+            // Chats grupales
+            else {
+                ContactoResponse dataGrupo = generarContactoResponseChatGrupal(sala, usuarioLogeado);
+
+                if (dataGrupo.getDatosMensaje() != null) {
+                    contactosPreviosDeUsuario.add(dataGrupo);
+                }
+            }
+        }
+
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            String filtroLower = filtro.toLowerCase();
+
+            contactosPreviosDeUsuario = contactosPreviosDeUsuario.stream()
+                    .filter(value -> {
+                        if (value.getDatosGrupo() != null &&
+                                value.getDatosGrupo().getNombreGrupo() != null) {
+                            return value.getDatosGrupo()
+                                    .getNombreGrupo()
+                                    .toLowerCase()
+                                    .contains(filtroLower) && value.getDatosMensaje() != null;
+                        }
+                        return true;
+                    })
+                    .toList();
+        }
+
+        return contactosPreviosDeUsuario;
+    }
+
+    public List<ContactoResponse> obtenerContactosDeGrupos(String filtro) {
+        Usuario usuarioLogeado = usuarioService.obtenerUsuarioActual();
+        List<Sala> salasDeUsuarioActual = salaService.obtenerSalasPorUsuario(usuarioLogeado.getId());
+        List<ContactoResponse> contactosPreviosDeUsuario = new ArrayList<>();
+
+        for (Sala sala : salasDeUsuarioActual) {
+            TipoSala tipoSala = sala.getTipoSala();
+
+            if (tipoSala == TipoSala.GRUPO) {
+                contactosPreviosDeUsuario.add(
+                        generarContactoResponseChatGrupal(sala, usuarioLogeado)
+                );
+            }
+        }
+
+        if (filtro != null && !filtro.trim().isEmpty()) {
+            String filtroLower = filtro.toLowerCase();
+
+            contactosPreviosDeUsuario = contactosPreviosDeUsuario.stream()
+                    .filter(value -> {
+                        if (value.getDatosGrupo() != null &&
+                                value.getDatosGrupo().getNombreGrupo() != null) {
+                            return value.getDatosGrupo()
+                                    .getNombreGrupo()
+                                    .toLowerCase()
+                                    .contains(filtroLower);
+                        }
+                        return false;
+                    })
+                    .toList();
+        }
+
+        return contactosPreviosDeUsuario;
+    }
+
+    public List<ContactoResponse> obtenerContactosDeCampania(String filtro) {
         Usuario usuarioActual = usuarioService.obtenerUsuarioActual();
         List<ContactoResponse> contactosDeUsuario = new ArrayList<>();
 
@@ -93,38 +213,7 @@ public class ChatService {
         return contactosDeUsuario;
     }
 
-    public List<ContactoResponse> obtenerContactosConChatPrevio() {
-        Usuario usuarioLogeado = usuarioService.obtenerUsuarioActual();
-        List<Sala> salasDeUsuarioActual = salaService.obtenerSalasPorUsuario(usuarioLogeado.getId());
-        List<ContactoResponse> contactosPreviosDeUsuario = new ArrayList<>();
 
-        for (Sala sala : salasDeUsuarioActual) {
-            TipoSala tipoSala = sala.getTipoSala();
-
-            // Chat entre 2 personas
-            if (tipoSala == TipoSala.PRIVADO) {
-                Optional<Usuario> contacto = salaService.obtenerIntegrantesDeSala(sala.getId())
-                        .stream()
-                        .map(Integrante::getUsuario)
-                        .filter(usuario ->
-                                !usuario.getId().equals(usuarioLogeado.getId())
-                        )
-                        .findFirst();
-
-                contacto.ifPresent(usuario -> contactosPreviosDeUsuario.add(
-                        generarContactoResponseChatPrivado(usuario, usuarioLogeado)
-                ));
-            }
-            // Chats grupales
-            else {
-                contactosPreviosDeUsuario.add(
-                        generarContactoResponseChatGrupal(sala, usuarioLogeado)
-                );
-            }
-        }
-
-        return contactosPreviosDeUsuario;
-    }
 
     private ContactoResponse generarContactoResponseChatPrivado(Usuario contacto, Usuario usuarioLogeado) {
         // Obtener sala en caso haya habido contacto previo, sino asigna null
@@ -235,10 +324,16 @@ public class ChatService {
         );
     }
 
+    @Transactional
     public void enviarMensaje(ChatRequest chatRequest, Principal principal) {
-        Usuario usuarioActual = usuarioService.obtenerUsuarioPorID(
-                Long.parseLong(principal.getName())
-        );
+        Usuario usuarioActual;
+
+        if (principal != null)
+            usuarioActual = usuarioService.obtenerUsuarioPorID(
+                    Long.parseLong(principal.getName())
+            );
+        else
+            usuarioActual = usuarioService.obtenerUsuarioActual();
 
         if (chatRequest.getTipoSala() == TipoSala.PRIVADO)
             enviarMensajePrivado(chatRequest, usuarioActual);
@@ -266,12 +361,51 @@ public class ChatService {
         Mensaje nuevoMensaje = new Mensaje(
                 null, chatRequest.getTipoMensaje(), LocalDateTime.now(),
                 LocalDateTime.now(), salaPrivada, usuarioActual
-                );
+        );
         nuevoMensaje = mensajeRepository.save(nuevoMensaje);
 
-        // Falta validar que el mensaje sea de texto, archivo o imagen
-        Texto nuevoTexto = new Texto(null, chatRequest.getTexto(), nuevoMensaje);
-        textoRepository.save(nuevoTexto);
+        ArchivoResponse archivoResponse = null;
+
+        switch (chatRequest.getTipoMensaje()) {
+            case MSG_TEXTO: {
+                final Texto nuevoTexto = new Texto(null, chatRequest.getTexto(), nuevoMensaje);
+                textoRepository.save(nuevoTexto);
+                break;
+            }
+            case MSG_ARCHIVO:
+            case MSG_IMAGEN: {
+                boolean esImagen = archivoService.esImagen(chatRequest.getArchivo());
+                ;
+
+                if (esImagen && chatRequest.getTipoMensaje() != TipoMensaje.MSG_IMAGEN) {
+                    // El archivo es una imagen, pero el tipo de mensaje no es imagen
+                    nuevoMensaje.setTipo(TipoMensaje.MSG_IMAGEN);
+                    mensajeRepository.save(nuevoMensaje);
+                }
+                if (!esImagen && chatRequest.getTipoMensaje() != TipoMensaje.MSG_ARCHIVO) {
+                    // El archivo no es una imagen, pero el tipo de mensaje no es archivo
+                    nuevoMensaje.setTipo(TipoMensaje.MSG_ARCHIVO);
+                    mensajeRepository.save(nuevoMensaje);
+                }
+
+                // Archivo: Envía archivo a cloudinary y lo retorna
+                final Archivo archivo = archivoService.crearArchivo(chatRequest.getArchivo());
+
+                // Emparejamiento de archivo con mensaje
+                Fichero fichero = new Fichero(null, nuevoMensaje, archivo);
+                ficheroRepository.save(fichero);
+
+                // Creacion de archivoResponse
+                archivoResponse = new ArchivoResponse(
+                        archivo.getId(),
+                        archivo.getNombre(),
+                        archivo.getTamanio(),
+                        archivo.getTipo(),
+                        archivo.getUrl()
+                );
+                break;
+            }
+        }
 
         ChatResponse respuesta = new ChatResponse(
                 salaPrivada.getId(),
@@ -281,7 +415,7 @@ public class ChatService {
                 null,
                 chatRequest.getTipoSala(),
                 chatRequest.getTipoMensaje(),
-                null,
+                archivoResponse,
                 chatRequest.getTexto(),
                 nuevoMensaje.getFechaCreacion()
         );
@@ -314,22 +448,61 @@ public class ChatService {
         );
         nuevoMensaje = mensajeRepository.save(nuevoMensaje);
 
-        // Creacion de texto (FALTA: No se está validando el tipo de mensaje)
-        Texto nuevoTexto = new Texto(
-                null,
-                chatRequest.getTexto(),
-                nuevoMensaje
-        );
-        textoRepository.save(nuevoTexto);
+        ArchivoResponse archivoResponse = null;
+
+        switch (nuevoMensaje.getTipo()) {
+            case MSG_TEXTO: {
+                final Texto nuevoTexto = new Texto(null, chatRequest.getTexto(), nuevoMensaje);
+                textoRepository.save(nuevoTexto);
+                break;
+            }
+            case MSG_ARCHIVO:
+            case MSG_IMAGEN: {
+                boolean esImagen = archivoService.esImagen(chatRequest.getArchivo());
+                ;
+
+                if (esImagen && chatRequest.getTipoMensaje() != TipoMensaje.MSG_IMAGEN) {
+                    // El archivo es una imagen, pero el tipo de mensaje no es imagen
+                    nuevoMensaje.setTipo(TipoMensaje.MSG_IMAGEN);
+                    mensajeRepository.save(nuevoMensaje);
+                }
+                if (!esImagen && chatRequest.getTipoMensaje() != TipoMensaje.MSG_ARCHIVO) {
+                    // El archivo no es una imagen, pero el tipo de mensaje no es archivo
+                    nuevoMensaje.setTipo(TipoMensaje.MSG_ARCHIVO);
+                    mensajeRepository.save(nuevoMensaje);
+                }
+
+                // Archivo: Envía archivo a cloudinary y lo retorna
+                final Archivo archivo = archivoService.crearArchivo(chatRequest.getArchivo());
+
+                // Emparejamiento de archivo con mensaje
+                Fichero fichero = new Fichero(null, nuevoMensaje, archivo);
+                ficheroRepository.save(fichero);
+
+                // Creacion de archivoResponse
+                archivoResponse = new ArchivoResponse(
+                        archivo.getId(),
+                        archivo.getNombre(),
+                        archivo.getTamanio(),
+                        archivo.getTipo(),
+                        archivo.getUrl()
+                );
+                break;
+            }
+        }
 
         Grupo grupoDeSala = grupoService.obtenerGrupoPorSala(salaGrupal.getId());
+        SalaResponse sala = SalaMapper.salaResponse(
+                salaGrupal,
+                salaService.obtenerIntegrantesDeSala(salaGrupal.getId())
+        );
 
         GrupoResponse grupoResponse = new GrupoResponse(
                 grupoDeSala.getId(),
                 grupoDeSala.getNombre(),
                 grupoDeSala.getDescripcion(),
                 grupoDeSala.getImagenGrupo().getUrl(),
-                null,
+                sala,
                 grupoDeSala.getUltimaModificacion(),
                 grupoDeSala.getEstado()
         );
@@ -342,7 +515,7 @@ public class ChatService {
                 grupoResponse,
                 chatRequest.getTipoSala(),
                 chatRequest.getTipoMensaje(),
-                null,
+                archivoResponse,
                 chatRequest.getTexto(),
                 nuevoMensaje.getFechaCreacion()
         );

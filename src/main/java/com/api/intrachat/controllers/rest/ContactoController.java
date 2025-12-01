@@ -20,18 +20,27 @@ public class ContactoController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/todos")
-    public ResponseEntity<GeneralResponse<?>> obtenerContactosSinChatPrevio(@RequestParam(defaultValue = "")
+    @GetMapping("/recientes")
+    public ResponseEntity<GeneralResponse<?>> obtenerContactosConChatsRecientes(@RequestParam(defaultValue = "")
                                                                                 String filtroBusqueda) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                ResponseConstruct.generarRespuestaExitosa(chatService.obtenerContactosSinChatPrevio(filtroBusqueda))
+                ResponseConstruct.generarRespuestaExitosa(chatService.obtenerContactosConChatsRecientes(filtroBusqueda))
         );
     }
 
-    @GetMapping("/recientes")
-    public ResponseEntity<GeneralResponse<?>> obtenerContactosConChatPrevio() {
+    @GetMapping("/grupos")
+    public ResponseEntity<GeneralResponse<?>> obtenerContactosDeGrupos(@RequestParam(defaultValue = "")
+                                                                         String filtroBusqueda) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                ResponseConstruct.generarRespuestaExitosa(chatService.obtenerContactosConChatPrevio())
+                ResponseConstruct.generarRespuestaExitosa(chatService.obtenerContactosDeGrupos(filtroBusqueda))
+        );
+    }
+
+    @GetMapping("/campania")
+    public ResponseEntity<GeneralResponse<?>> obtenerContactosDeCampania(@RequestParam(defaultValue = "")
+                                                                             String filtroBusqueda) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(chatService.obtenerContactosDeCampania(filtroBusqueda))
         );
     }
 

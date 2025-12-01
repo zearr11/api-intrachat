@@ -11,7 +11,7 @@ public interface IArchivoService {
     void modificarArchivo(Archivo archivoActual, MultipartFile archivo);
 
     void verificarArchivoValido(MultipartFile archivo);
-    void esArchivoImagen(MultipartFile archivo);
-    void esOtroTipoDeArchivo(MultipartFile archivo);
+    void validarImagen(MultipartFile archivo);
+    boolean esImagen(MultipartFile archivo);
 
 }

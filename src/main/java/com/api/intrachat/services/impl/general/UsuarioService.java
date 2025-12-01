@@ -4,7 +4,7 @@ import com.api.intrachat.dto.request.UsuarioRequest2;
 import com.api.intrachat.models.general.Archivo;
 import com.api.intrachat.services.interfaces.general.IArchivoService;
 import com.api.intrachat.services.interfaces.other.IEmailService;
-import com.api.intrachat.utils.constructs.PasswordRandomConstruct;
+import com.api.intrachat.utils.constructs.RandomConstruct;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.models.CustomUserDetails;
@@ -137,7 +137,7 @@ public class UsuarioService implements IUsuarioService {
     public String crearUsuario(UsuarioRequest usuarioRequest) {
 
         LocalDateTime fechaActual = LocalDateTime.now();
-        String txtPassword = PasswordRandomConstruct.generarPassword();
+        String txtPassword = RandomConstruct.generarCadenaAleatoria();
 
         // Validacion documento valido
         DNIValidacion.documentoIdentidadValido(usuarioRequest.getNumeroDoc(),
@@ -308,7 +308,7 @@ public class UsuarioService implements IUsuarioService {
     public String modificarImagenUsuario(Long id, MultipartFile archivo) {
 
         // Validacion: Lanza excepción si el archivo no es una imagen
-        archivoService.esArchivoImagen(archivo);
+        archivoService.validarImagen(archivo);
 
         // Búsqueda de usuario a modificar
         Usuario usuarioModificar = obtenerUsuarioPorID(id);

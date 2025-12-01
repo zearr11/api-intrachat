@@ -1,5 +1,6 @@
 package com.api.intrachat.services.impl.other;
 
+import com.api.intrachat.utils.constructs.RandomConstruct;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.services.interfaces.other.ICloudinaryService;
 import com.api.intrachat.utils.constants.CloudinaryConstants;
@@ -7,10 +8,12 @@ import com.api.intrachat.utils.exceptions.errors.ErrorException409;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -25,22 +28,34 @@ public class CloudinaryService implements ICloudinaryService {
     }
 
     @Override
-    public String subirArchivo(MultipartFile archivo) {
+    public String subirArchivo(MultipartFile archivo, boolean esImagen) {
         try {
-            Map<?, ?> uploadResult = cloudinary.uploader()
-                    .upload(archivo.getBytes(), Map.of(
-                            CloudinaryConstants.KEY_LOCATION_UPLOAD_FILE,
-                            CloudinaryConstants.VALUE_LOCATION_UPLOAD_FILE
-                    ));
+            String extension = FilenameUtils.getExtension(archivo.getOriginalFilename());
+            String nombreFinal = RandomConstruct.generarCadenaAleatoria() + "." + extension;
 
-            return uploadResult.get(
-                    CloudinaryConstants.SECURE_URL_CLOUDINARY
-            ).toString();
+            Map<String, Object> options = new HashMap<>();
+            options.put("folder", "intrachat-folder");
+            options.put("filename_override", nombreFinal);
+
+            // MUY IMPORTANTE
+            options.put("type", "upload");      // evita authenticated
+            options.put("access_mode", "public");
+            options.put("resource_type", esImagen ? "image" : "raw");
+
+            if (!esImagen) {
+                options.put("flags", "attachment"); // descarga forzada
+            }
+
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(archivo.getBytes(), options);
+
+            System.out.println(uploadResult.get("secure_url").toString());
+            return uploadResult.get("secure_url").toString();
 
         } catch (IOException e) {
-            throw new ErrorException400(CloudinaryConstants.MESSAGE_ERROR_UPLOAD);
+            throw new ErrorException400("Error al subir archivo");
         }
     }
+
 
     @Override
     public boolean nuevoArchivoIgualAlActual(MultipartFile nuevoArchivo, String urlArchivoActual) {
