@@ -4,11 +4,14 @@ import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.response.MensajeResponse;
 import com.api.intrachat.models.chat.Fichero;
 import com.api.intrachat.models.chat.Mensaje;
+import com.api.intrachat.models.chat.Sala;
 import com.api.intrachat.models.chat.Texto;
 import com.api.intrachat.repositories.chat.FicheroRepository;
 import com.api.intrachat.repositories.chat.MensajeRepository;
 import com.api.intrachat.repositories.chat.TextoRepository;
 import com.api.intrachat.services.interfaces.chat.IMensajeService;
+import com.api.intrachat.services.interfaces.chat.ISalaService;
+import com.api.intrachat.services.interfaces.general.IUsuarioService;
 import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
@@ -26,13 +29,19 @@ public class MensajeService implements IMensajeService {
     private final MensajeRepository mensajeRepository;
     private final TextoRepository textoRepository;
     private final FicheroRepository ficheroRepository;
+    private final IUsuarioService usuarioService;
+    private final ISalaService salaService;
 
     public MensajeService(MensajeRepository mensajeRepository,
                           TextoRepository textoRepository,
-                          FicheroRepository ficheroRepository) {
+                          FicheroRepository ficheroRepository,
+                          IUsuarioService usuarioService,
+                          ISalaService salaService) {
         this.mensajeRepository = mensajeRepository;
         this.textoRepository = textoRepository;
         this.ficheroRepository = ficheroRepository;
+        this.usuarioService = usuarioService;
+        this.salaService = salaService;
     }
 
     @Override
@@ -92,5 +101,36 @@ public class MensajeService implements IMensajeService {
     @Override
     public Fichero obtenerFicheroDeMensaje(Long idMensaje) {
         return ficheroRepository.findByMensaje(obtenerMensajePorId(idMensaje)).orElse(null);
+    }
+
+    @Override
+    public boolean mensajeEsDeChatPrivado(Long idMensaje, Long idUsuarioDestino) {
+        Long idUsuarioLogeado = usuarioService.obtenerUsuarioActual().getId();
+
+        if (idUsuarioDestino.equals(idUsuarioLogeado)) return false;
+
+        // Obtener el mensaje
+        Mensaje mensaje = mensajeRepository.findById(idMensaje)
+                .orElse(null);
+
+        if (mensaje == null) return false;
+
+        Long idSalaMensaje = mensaje.getSala().getId();
+
+        // Obtener la sala privada entre ambos usuarios
+        Sala salaPrivada = salaService.obtenerSalaPrivadaPorIntegrantes(idUsuarioDestino, idUsuarioLogeado);
+
+        if (salaPrivada == null) return false;
+
+        return idSalaMensaje.equals(salaPrivada.getId());
+    }
+
+    @Override
+    public boolean mensajeEsDeChatGrupal(Long idMensaje, Long idSala) {
+        Mensaje mensaje = mensajeRepository.findById(idMensaje).orElse(null);
+
+        if (mensaje == null) return false;
+
+        return mensaje.getSala().getId().equals(idSala);
     }
 }

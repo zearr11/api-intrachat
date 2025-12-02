@@ -14,18 +14,18 @@ public class AppConfig {
         return new RestTemplate();
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**") // tus endpoints
-                        .allowedOrigins("http://localhost:4200") // origen Angular
-                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true); // si usas cookies o autenticación
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurer() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/api/**") // tus endpoints
+//                        .allowedOrigins("*") // origen Angular
+//                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+//                        .allowedHeaders("*")
+//                        .allowCredentials(true); // si usas cookies o autenticación
+//            }
+//        };
+//    }
 
 }

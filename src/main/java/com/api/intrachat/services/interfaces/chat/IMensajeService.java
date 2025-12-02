@@ -20,4 +20,8 @@ public interface IMensajeService {
     Texto obtenerTextoDeMensaje(Long idMensaje);
     Fichero obtenerFicheroDeMensaje(Long idMensaje);
 
+    // Validación Mensaje
+    boolean mensajeEsDeChatPrivado(Long idMensaje, Long idUsuarioDestino);
+    boolean mensajeEsDeChatGrupal(Long idMensaje, Long idSala);
+
 }

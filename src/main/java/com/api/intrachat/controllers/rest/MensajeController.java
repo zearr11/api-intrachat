@@ -42,4 +42,20 @@ public class MensajeController {
         chatService.enviarMensaje(chatRequest, null);
     }
 
+    @GetMapping("/validaciones/chat-privado")
+    public ResponseEntity<GeneralResponse<?>> mensajeEsDeChatPrivado(@RequestParam Long idMensaje,
+                                                                     @RequestParam Long idUsuarioDestino) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(mensajeService.mensajeEsDeChatPrivado(idMensaje, idUsuarioDestino))
+        );
+    }
+
+    @GetMapping("/validaciones/chat-grupal")
+    public ResponseEntity<GeneralResponse<?>> mensajeEsDeChatGrupal(@RequestParam Long idMensaje,
+                                                                    @RequestParam Long idSala) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(mensajeService.mensajeEsDeChatGrupal(idMensaje, idSala))
+        );
+    }
+
 }

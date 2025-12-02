@@ -255,6 +255,7 @@ public class ChatService {
                 }
 
                 datosMensaje = new DatosMensajeResponse(
+                        ultimoMensajeDeSala.getId(),
                         ultimoMensajeEsDeUsuarioActual, nuevoTexto,
                         ultimoMensajeDeSala.getFechaCreacion()
                 );
@@ -305,7 +306,9 @@ public class ChatService {
                             ? "Enviaste un archivo." : "Envió un archivo.";
                 }
 
-                datosMensaje = new DatosMensajeResponse(mensajeEsDeUsuarioLogeado, nuevoTexto,
+                datosMensaje = new DatosMensajeResponse(
+                        ultimoMensajeSala.getId(),
+                        mensajeEsDeUsuarioLogeado, nuevoTexto,
                         ultimoMensajeSala.getFechaCreacion());
             }
 
@@ -419,6 +422,9 @@ public class ChatService {
                 chatRequest.getTexto(),
                 nuevoMensaje.getFechaCreacion()
         );
+
+        System.out.println("USUARIO DESTINO: " + respuesta.getUsuarioDestino().getId().toString());
+        System.out.println("USUARIO REMITENTE: " + respuesta.getUsuarioRemitente().getId().toString());
 
         simpMessagingTemplate.convertAndSendToUser(
                 respuesta.getUsuarioDestino().getId().toString(),

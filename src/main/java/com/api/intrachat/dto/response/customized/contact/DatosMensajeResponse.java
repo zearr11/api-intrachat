@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class DatosMensajeResponse {
 
+    private Long idMensaje;
     private Boolean ultimoMensajeEsMio;
     private String texto;
     private LocalDateTime horaEnvio;
