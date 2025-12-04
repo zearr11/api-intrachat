@@ -67,6 +67,8 @@ public class CampaniaService implements ICampaniaService {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
+        /*
+
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombre").ascending());
         Page<Campania> listado = campaniaRepository.buscarPorFiltro(estado, filtro, pageable);
 
@@ -83,6 +85,11 @@ public class CampaniaService implements ICampaniaService {
                 listado.getTotalPages(),
                 campanias
         );
+
+
+        */
+
+        return null;
     }
 
     @Override

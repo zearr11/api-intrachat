@@ -209,7 +209,6 @@ public class UsuarioService implements IUsuarioService {
     public String modificarUsuario(Long id, UsuarioRequest2 usuarioRequest) {
 
         Usuario usuarioModificar = obtenerUsuarioPorID(id);
-
         // Nombres
         if (usuarioRequest.getNombres() != null
                 && !usuarioRequest.getNombres().isBlank()) {
@@ -220,13 +219,26 @@ public class UsuarioService implements IUsuarioService {
                 && !usuarioRequest.getApellidos().isBlank()) {
             usuarioModificar.getPersona().setApellidos(usuarioRequest.getApellidos());
         }
-        // Tipo de documento
-        if (usuarioRequest.getTipoDoc() != null) {
-            usuarioModificar.getPersona().setTipoDoc(usuarioRequest.getTipoDoc());
-        }
-        // Numero de documento
-        if (usuarioRequest.getNumeroDoc() != null
+        // Tipo de documento y numero de documento
+        if (usuarioRequest.getTipoDoc() != null &&
+                usuarioRequest.getNumeroDoc() != null
                 && !usuarioRequest.getNumeroDoc().isBlank()) {
+
+            // Validacion documento valido
+            DNIValidacion.documentoIdentidadValido(
+                    usuarioRequest.getNumeroDoc(), usuarioRequest.getTipoDoc()
+            );
+
+            // Encontrar en bd persona con tipo y número de documento igual
+            Optional<Persona> personaCoincidente = personaRepository.findByTipoDocAndNumeroDoc(
+                    usuarioRequest.getTipoDoc(), usuarioRequest.getNumeroDoc());
+
+            // Si existe y es diferente del id de la persona actual, genera error
+            if (personaCoincidente.isPresent()
+                    && !usuarioModificar.getPersona().getId().equals(personaCoincidente.get().getId()))
+                throw new ErrorException409(UsuarioConstants.ERROR_TIPO_DOC_NUM_DOC_REGISTRADO);
+
+            usuarioModificar.getPersona().setTipoDoc(usuarioRequest.getTipoDoc());
             usuarioModificar.getPersona().setNumeroDoc(usuarioRequest.getNumeroDoc());
         }
         // Genero
@@ -236,6 +248,15 @@ public class UsuarioService implements IUsuarioService {
         // Celular
         if (usuarioRequest.getCelular() != null
                 && !usuarioRequest.getCelular().isBlank()) {
+
+            // Encontrar en bd persona con celular igual
+            Optional<Persona> personaCoincidente = personaRepository.findByCelular(usuarioRequest.getCelular());
+
+            // Si existe y es diferente del id de la persona actual, genera error
+            if (personaCoincidente.isPresent()
+                    && !usuarioModificar.getPersona().getId().equals(personaCoincidente.get().getId()))
+                throw new ErrorException409(UsuarioConstants.ERROR_CELULAR_REGISTRADO);
+
             usuarioModificar.getPersona().setCelular(usuarioRequest.getCelular());
         }
         // Informacion
@@ -246,6 +267,16 @@ public class UsuarioService implements IUsuarioService {
         // Email
         if (usuarioRequest.getEmail() != null
                 && !usuarioRequest.getEmail().isBlank()) {
+
+            // Encontrar en bd usuario con email igual
+            Optional<Usuario> usuarioCoincidente = usuarioRepository.findByEmail(usuarioRequest.getEmail());
+
+            // Si existe y es diferente del id del usuario actual, genera error
+            if (usuarioCoincidente.isPresent()
+                    && !usuarioModificar.getId().equals(usuarioCoincidente.get().getId())) {
+                throw new ErrorException409(UsuarioConstants.ERROR_EMAIL_REGISTRADO);
+            }
+
             usuarioModificar.setEmail(usuarioRequest.getEmail());
         }
         // Password
@@ -261,36 +292,6 @@ public class UsuarioService implements IUsuarioService {
         if (usuarioRequest.getEstado() != null) {
             usuarioModificar.setEstado(usuarioRequest.getEstado());
         }
-
-        // Validacion documento valido
-        DNIValidacion.documentoIdentidadValido(
-                usuarioModificar.getPersona().getNumeroDoc(), usuarioModificar.getPersona().getTipoDoc()
-        );
-
-        // Encontrar en bd persona con tipo y número de documento igual
-        Optional<Persona> personaCoincidente = personaRepository.findByTipoDocAndNumeroDoc(
-                usuarioModificar.getPersona().getTipoDoc(), usuarioModificar.getPersona().getNumeroDoc());
-
-        // Si existe y es diferente del id de la persona actual, genera error
-        if (personaCoincidente.isPresent()
-                && !usuarioModificar.getPersona().getId().equals(personaCoincidente.get().getId()))
-            throw new ErrorException409(UsuarioConstants.ERROR_TIPO_DOC_NUM_DOC_REGISTRADO);
-
-        // Encontrar en bd persona con celular igual
-        personaCoincidente = personaRepository.findByCelular(usuarioRequest.getCelular());
-
-        // Si existe y es diferente del id de la persona actual, genera error
-        if (personaCoincidente.isPresent()
-                && !usuarioModificar.getPersona().getId().equals(personaCoincidente.get().getId()))
-            throw new ErrorException409(UsuarioConstants.ERROR_CELULAR_REGISTRADO);
-
-        // Encontrar en bd usuario con email igual
-        Optional<Usuario> usuarioCoincidente = usuarioRepository.findByEmail(usuarioRequest.getEmail());
-
-        // Si existe y es diferente del id del usuario actual, genera error
-        if (usuarioCoincidente.isPresent()
-                && !usuarioModificar.getId().equals(usuarioCoincidente.get().getId()))
-            throw new ErrorException409(UsuarioConstants.ERROR_EMAIL_REGISTRADO);
 
         // Falta implementar validación para el cambio de rol no permitiéndolo en caso tenga campaña activa
 

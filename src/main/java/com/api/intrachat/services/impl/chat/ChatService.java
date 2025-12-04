@@ -423,9 +423,6 @@ public class ChatService {
                 nuevoMensaje.getFechaCreacion()
         );
 
-        System.out.println("USUARIO DESTINO: " + respuesta.getUsuarioDestino().getId().toString());
-        System.out.println("USUARIO REMITENTE: " + respuesta.getUsuarioRemitente().getId().toString());
-
         simpMessagingTemplate.convertAndSendToUser(
                 respuesta.getUsuarioDestino().getId().toString(),
                 "/queue/messages",

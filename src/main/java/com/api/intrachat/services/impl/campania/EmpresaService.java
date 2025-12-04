@@ -48,12 +48,11 @@ public class EmpresaService implements IEmpresaService {
     @Override
     public PaginatedResponse<List<EmpresaResponse>> obtenerEmpresasPaginado(int page, int size,
                                                                             boolean estado, String filtro) {
-
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombre").ascending());
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombreComercial").ascending());
         Page<Empresa> listado = empresaRepository.buscarPorFiltro(filtro, estado, pageable);
 
         List<EmpresaResponse> empresas = listado.getContent()
@@ -74,13 +73,20 @@ public class EmpresaService implements IEmpresaService {
     @Override
     public String crearEmpresa(EmpresaRequest empresaRequest) {
 
-        if (empresaRepository.findByNombre(empresaRequest.getNombre()).isPresent())
+        if (empresaRepository.findByRazonSocial(empresaRequest.getRazonSocial()).isPresent())
             throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
 
-        Empresa nuevaEmpresa = Empresa.builder()
-                .nombre(empresaRequest.getNombre())
-                .estado(GeneralConstants.ESTADO_DEFAULT)
-                .build();
+        if (empresaRepository.findByNombreComercial(empresaRequest.getNombreComercial()).isPresent())
+            throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
+
+        if (empresaRepository.findByRuc(empresaRequest.getRuc()).isPresent())
+            throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
+
+        Empresa nuevaEmpresa = new Empresa(
+                null, empresaRequest.getRazonSocial(), empresaRequest.getNombreComercial(),
+                empresaRequest.getRuc(), empresaRequest.getCorreo(), empresaRequest.getTelefono(),
+                GeneralConstants.ESTADO_DEFAULT
+        );
 
         empresaRepository.save(nuevaEmpresa);
 
@@ -89,19 +95,45 @@ public class EmpresaService implements IEmpresaService {
 
     @Override
     public String modificarEmpresa(Long id, EmpresaRequest2 empresaRequest) {
-
         Empresa empresaActualizar = obtenerEmpresaPorID(id);
 
-        // Nombre
-        if (empresaRequest.getNombre() != null && !empresaRequest.getNombre().isBlank()) {
-            Optional<Empresa> empresaCoincidente = empresaRepository.findByNombre(empresaRequest.getNombre());
+        // Razon Social
+        if (empresaRequest.getRazonSocial() != null && !empresaRequest.getRazonSocial().isBlank()) {
+            Optional<Empresa> empresaCoincidente = empresaRepository.findByRazonSocial(
+                    empresaRequest.getRazonSocial());
 
             if (empresaCoincidente.isPresent() && !id.equals(empresaCoincidente.get().getId()))
                 throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
 
-            empresaActualizar.setNombre(empresaRequest.getNombre());
+            empresaActualizar.setRazonSocial(empresaRequest.getRazonSocial());
         }
+        // Nombre Comercial
+        if (empresaRequest.getNombreComercial() != null && !empresaRequest.getNombreComercial().isBlank()) {
+            Optional<Empresa> empresaCoincidente = empresaRepository.findByNombreComercial(
+                    empresaRequest.getNombreComercial());
 
+            if (empresaCoincidente.isPresent() && !id.equals(empresaCoincidente.get().getId()))
+                throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
+
+            empresaActualizar.setNombreComercial(empresaRequest.getNombreComercial());
+        }
+        // RUC
+        if (empresaRequest.getRuc() != null && !empresaRequest.getRuc().isBlank()) {
+            Optional<Empresa> empresaCoincidente = empresaRepository.findByRuc(empresaRequest.getRuc());
+
+            if (empresaCoincidente.isPresent() && !id.equals(empresaCoincidente.get().getId()))
+                throw new ErrorException409(GeneralConstants.mensajeEntidadYaRegistrada("Empresa"));
+
+            empresaActualizar.setRuc(empresaRequest.getRuc());
+        }
+        // Correo
+        if (empresaRequest.getCorreo() != null && !empresaRequest.getCorreo().isBlank()) {
+            empresaActualizar.setCorreo(empresaRequest.getCorreo());
+        }
+        // Telefono
+        if (empresaRequest.getTelefono() != null && !empresaRequest.getTelefono().isBlank()) {
+            empresaActualizar.setTelefono(empresaRequest.getTelefono());
+        }
         // Estado
         if (empresaRequest.getEstado() != null) {
             empresaActualizar.setEstado(empresaRequest.getEstado());

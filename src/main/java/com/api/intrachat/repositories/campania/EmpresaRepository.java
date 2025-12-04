@@ -11,13 +11,15 @@ import java.util.Optional;
 
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
 
-    Optional<Empresa> findByNombre(String nombre);
+    Optional<Empresa> findByRazonSocial(String razonSocial);
+    Optional<Empresa> findByNombreComercial(String nombreComercial);
+    Optional<Empresa> findByRuc(String ruc);
 
     @Query("""
        SELECT e FROM Empresa e
        WHERE (:estado IS NULL OR e.estado = :estado)
        AND (:filtro IS NULL OR :filtro = '' OR
-            LOWER(e.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')))
+            LOWER(e.nombreComercial) LIKE LOWER(CONCAT('%', :filtro, '%')))
        """)
     Page<Empresa> buscarPorFiltro(
             @Param("filtro") String filtro,

@@ -9,6 +9,10 @@ import lombok.*;
 @Builder
 public class EmpresaRequest {
 
-    private String nombre;
+    private String razonSocial;
+    private String nombreComercial;
+    private String ruc;
+    private String correo;
+    private String telefono;
 
 }

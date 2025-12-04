@@ -21,6 +21,7 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
     List<Campania> findBySedeId(@Param("idSede") Long idSede);
     */
 
+    /*
     @Query("""
        SELECT c FROM Campania c
        JOIN c.empresa e
@@ -35,5 +36,5 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
             @Param("estado") boolean estado,
             @Param("filtro") String filtro,
             Pageable pageable);
-
+    */
 }

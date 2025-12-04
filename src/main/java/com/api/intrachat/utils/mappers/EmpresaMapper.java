@@ -7,7 +7,13 @@ public class EmpresaMapper {
 
     public static EmpresaResponse empresaResponse(Empresa empresa) {
         return new EmpresaResponse(
-                empresa.getId(), empresa.getNombre(), empresa.getEstado()
+                empresa.getId(),
+                empresa.getRazonSocial(),
+                empresa.getNombreComercial(),
+                empresa.getRuc(),
+                empresa.getCorreo(),
+                empresa.getTelefono(),
+                empresa.getEstado()
         );
     }
 

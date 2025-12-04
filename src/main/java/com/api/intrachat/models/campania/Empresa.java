@@ -16,8 +16,20 @@ public class Empresa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String razonSocial;
+
+    @Column(nullable = false, unique = true)
+    private String nombreComercial;
+
+    @Column(nullable = false, unique = true)
+    private String ruc;
+
     @Column(nullable = false)
-    private String nombre;
+    private String correo;
+
+    @Column(nullable = false)
+    private String telefono;
 
     @Column(nullable = false)
     private Boolean estado;
