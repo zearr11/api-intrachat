@@ -2,11 +2,12 @@ package com.api.intrachat.services.impl.campania;
 
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.OperacionRequest;
-import com.api.intrachat.dto.response.OperacionResponse;
+import com.api.intrachat.dto.response.OperacionEspecialResponse;
 import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.models.campania.Operacion;
 import com.api.intrachat.models.general.Usuario;
 import com.api.intrachat.repositories.campania.OperacionRepository;
+import com.api.intrachat.repositories.campania.projections.OperacionProjection;
 import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.services.interfaces.campania.IOperacionService;
@@ -51,28 +52,29 @@ public class OperacionService implements IOperacionService {
     }
 
     @Override
-    public PaginatedResponse<List<OperacionResponse>> obtenerOperacionesPaginado(int page, int size,
-                                                                                 boolean estado, Long idCampania,
-                                                                                 Long idJefeOperacion) {
+    public PaginatedResponse<List<OperacionEspecialResponse>> obtenerOperacionesPaginado(int page, int size,
+                                                                                         boolean estado, Long idCampania) {
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
         // Si no existen los servicios lanzan una excepción
-        Usuario jefeOperacion = usuarioService.obtenerUsuarioPorID(idJefeOperacion);
-        Campania campania = campaniaService.obtenerCampaniaPorID(idCampania);
+        if (idCampania != null) {
+            Campania campania = campaniaService.obtenerCampaniaPorID(idCampania);
+        }
+
+        int mostrarActivas = estado ? 1 : 0;
 
         Pageable pageable = PageRequest.of(
-                page - 1, size, Sort.by("campania.nombre").ascending());
+                page - 1, size, Sort.by("campania").ascending());
 
-        Page<Operacion> listado = operacionRepository.buscarOperacionesPaginado(
-                estado,
+        Page<OperacionProjection> listado = operacionRepository.buscarOperacionesPorCampaniaYEstado(
                 idCampania,
-                idJefeOperacion,
+                mostrarActivas,
                 pageable
         );
 
-        List<OperacionResponse> operaciones = listado.getContent()
+        List<OperacionEspecialResponse> operaciones = listado.getContent()
                 .stream()
                 .map(OperacionMapper::operacionResponse)
                 .toList();
@@ -85,6 +87,7 @@ public class OperacionService implements IOperacionService {
                 listado.getTotalPages(),
                 operaciones
         );
+
     }
 
     @Override

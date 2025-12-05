@@ -4,6 +4,7 @@ import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.CampaniaRequest;
 import com.api.intrachat.dto.request.CampaniaRequest2;
 import com.api.intrachat.dto.response.CampaniaEspecialResponse;
+import com.api.intrachat.dto.response.CampaniaSimpleResponse;
 import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.repositories.campania.CampaniaRepository;
 import com.api.intrachat.repositories.campania.projections.CampaniaProjection;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +61,15 @@ public class CampaniaService implements ICampaniaService {
         return campaniaRepository.findByEmpresa(
                 empresaService.obtenerEmpresaPorID(idEmpresa)
         );
+    }
+
+    @Override
+    public List<CampaniaSimpleResponse> obtenerCampaniasListaSimple() {
+        return campaniaRepository.findAll().stream()
+                .map(obj ->
+                        new CampaniaSimpleResponse(obj.getId(), obj.getNombre())
+                )
+                .toList();
     }
 
     @Override

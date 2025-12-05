@@ -23,8 +23,8 @@ public class OperacionController {
     // Entidad - http://localhost:9890/api/v1/operaciones/id
     @GetMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> obtenerOperacionPorID(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
-                OperacionMapper.operacionResponse(operacionService.obtenerOperacionPorID(id))
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(null
+//                OperacionMapper.operacionResponse(operacionService.obtenerOperacionPorID(id))
         ));
     }
 
@@ -33,12 +33,12 @@ public class OperacionController {
     public ResponseEntity<GeneralResponse<?>> buscarOperacionesPaginado(
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
             @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
-            @RequestParam(required = false) Boolean estado, @RequestParam(required = false) Long idCampania,
-            @RequestParam(required = false) Long idJefeOperacion
+            @RequestParam(defaultValue = "true") Boolean estado,
+            @RequestParam(required = false) Long idCampania
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(
-                    operacionService.obtenerOperacionesPaginado(page, size, estado, idCampania, idJefeOperacion)
+                    operacionService.obtenerOperacionesPaginado(page, size, estado, idCampania)
                 ));
     }
 

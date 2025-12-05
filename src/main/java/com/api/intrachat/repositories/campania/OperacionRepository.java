@@ -1,6 +1,7 @@
 package com.api.intrachat.repositories.campania;
 
 import com.api.intrachat.models.campania.Operacion;
+import com.api.intrachat.repositories.campania.projections.OperacionProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,16 +10,64 @@ import org.springframework.data.repository.query.Param;
 
 public interface OperacionRepository extends JpaRepository<Operacion, Long> {
 
-    @Query("""
-        SELECT o FROM Operacion o
-        WHERE (:estado IS NULL OR o.estado = :estado)
-        AND (:idCampania IS NULL OR o.campania.id = :idCampania)
-        AND (:idJefeOperacion IS NULL OR o.jefeOperacion.id = :idJefeOperacion)
-    """)
-    Page<Operacion> buscarOperacionesPaginado(
-            @Param("estado") Boolean estado,
+    @Query(
+            value = """
+                    SELECT 
+                        o.id AS id,
+                        camp.nombre AS campania,
+                        s.nombre AS sede,
+                        CONCAT(per.nombres, ' ', per.apellidos) AS jefeOperacion,
+                    
+                        (SELECT COUNT(*) FROM equipos eq WHERE eq.fk_id_operacion = o.id AND eq.estado = 1)
+                            AS totalEquiposOperativos,
+                    
+                        (SELECT COUNT(*) FROM equipos eq WHERE eq.fk_id_operacion = o.id AND eq.estado = 0)
+                            AS totalEquiposInoperativos,
+                    
+                        (
+                            SELECT COUNT(*)
+                            FROM equipo_usuarios eu
+                            JOIN equipos eq ON eu.fk_id_equipo = eq.id
+                            WHERE eq.fk_id_operacion = o.id AND eu.estado = 1
+                        ) AS totalUsuariosOperativos,
+                    
+                        (
+                            SELECT COUNT(*)
+                            FROM equipo_usuarios eu
+                            JOIN equipos eq ON eu.fk_id_equipo = eq.id
+                            WHERE eq.fk_id_operacion = o.id AND eu.estado = 0
+                        ) AS totalUsuariosInoperativos,
+                    
+                        o.fecha_creacion AS fechaCreacion,
+                        o.fecha_finalizacion AS fechaFinalizacion
+                    
+                    FROM operaciones o
+                    JOIN campanias camp ON o.fk_id_campania = camp.id
+                    JOIN usuarios u ON o.fk_id_jefe_operacion = u.id
+                    JOIN personas per ON u.fk_id_persona = per.id
+                    JOIN sedes s ON o.fk_id_sede = s.id
+                    
+                    WHERE ( :idCampania IS NULL OR camp.id = :idCampania )
+                      AND (
+                            (:mostrarActivas = 1 AND o.fecha_finalizacion IS NULL)
+                         OR (:mostrarActivas = 0 AND o.fecha_finalizacion IS NOT NULL)
+                          )
+                    """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM operaciones o
+                    JOIN campanias camp ON o.fk_id_campania = camp.id
+                    WHERE ( :idCampania IS NULL OR camp.id = :idCampania )
+                      AND (
+                            (:mostrarActivas = 1 AND o.fecha_finalizacion IS NULL)
+                         OR (:mostrarActivas = 0 AND o.fecha_finalizacion IS NOT NULL)
+                          )
+                    """,
+            nativeQuery = true
+    )
+    Page<OperacionProjection> buscarOperacionesPorCampaniaYEstado(
             @Param("idCampania") Long idCampania,
-            @Param("idJefeOperacion") Long idJefeOperacion,
+            @Param("mostrarActivas") Integer mostrarActivas,
             Pageable pageable
     );
 

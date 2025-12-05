@@ -4,6 +4,7 @@ import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.CampaniaRequest;
 import com.api.intrachat.dto.request.CampaniaRequest2;
 import com.api.intrachat.dto.response.CampaniaEspecialResponse;
+import com.api.intrachat.dto.response.CampaniaSimpleResponse;
 import com.api.intrachat.models.campania.Campania;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface ICampaniaService {
     List<Campania> obtenerCampaniasPorEmpresa(Long idEmpresa);
     // List<Campania> obtenerCampaniasPorSede(Long idSede);
 
+    List<CampaniaSimpleResponse> obtenerCampaniasListaSimple();
     PaginatedResponse<List<CampaniaEspecialResponse>> obtenerCampaniasPaginado(int page, int size,
                                                                                boolean estado, String filtro);
 

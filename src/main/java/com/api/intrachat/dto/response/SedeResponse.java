@@ -7,11 +7,12 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class OperacionResponse {
+public class SedeResponse {
 
     private Long id;
-    private CampaniaEspecialResponse campania;
-    private UsuarioResponse jefeOperacion;
+    private String nombre;
+    private String direccion;
+    private Integer codigoPostal;
     private Boolean estado;
 
 }

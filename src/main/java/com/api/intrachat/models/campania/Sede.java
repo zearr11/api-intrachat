@@ -26,15 +26,6 @@ public class Sede {
     private Integer numeroPostal;
 
     @Column(nullable = false)
-    private String departamento;
-
-    @Column(nullable = false)
-    private String provincia;
-
-    @Column(nullable = false)
-    private String distrito;
-
-    @Column(nullable = false)
     private Boolean estado;
 
 }

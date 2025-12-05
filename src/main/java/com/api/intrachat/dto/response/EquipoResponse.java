@@ -7,6 +7,6 @@ public class EquipoResponse {
     private Boolean estado;
     private UsuarioResponse supervisor;
     private GrupoResponse grupo;
-    private OperacionResponse operacion;
+    private OperacionEspecialResponse operacion;
 
 }

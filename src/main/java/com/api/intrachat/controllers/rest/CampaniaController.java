@@ -43,6 +43,13 @@ public class CampaniaController {
         return null;
     }
 
+    @GetMapping("/simple")
+    public ResponseEntity<GeneralResponse<?>> buscarCampaniasSimple() {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
+                campaniaService.obtenerCampaniasListaSimple()
+        ));
+    }
+
     // Lista Paginada - http://localhost:9890/api/v1/campanias/paginacion
     @GetMapping("/paginacion")
     public ResponseEntity<GeneralResponse<?>> buscarCampaniasPaginado(

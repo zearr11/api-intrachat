@@ -47,7 +47,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
           AND u.estado = true
           AND eu.estado = true
           AND e.estado = true
-          AND o.estado = true
+          AND o.fechaFinalizacion = null
           AND c.estado = true
           AND LOWER(CONCAT(u.persona.nombres, ' ', u.persona.apellidos))
               LIKE LOWER(CONCAT('%', :filtro, '%'))
