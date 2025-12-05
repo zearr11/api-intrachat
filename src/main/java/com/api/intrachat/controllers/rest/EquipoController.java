@@ -23,8 +23,8 @@ public class EquipoController {
     // Entidad - http://localhost:9890/api/v1/equipos/id
     @GetMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> obtenerEquipoPorID(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
-                EquipoMapper.equipoResponse(equipoService.obtenerEquipoPorID(id))
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(null
+                // EquipoMapper.equipoResponse(equipoService.obtenerEquipoPorID(id))
         ));
     }
 
@@ -35,7 +35,7 @@ public class EquipoController {
             @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
             @RequestParam(required = false) Boolean estado, @RequestParam(required = false) Long idCampania,
             @RequestParam(required = false) Long idOperacion, @RequestParam(required = false) Long idEquipo
-            ) {
+    ) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(
                         equipoService.obtenerUsuariosEquipoPaginado(
@@ -49,15 +49,12 @@ public class EquipoController {
     public ResponseEntity<GeneralResponse<?>> buscarEquiposPaginado(
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
             @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
-            @RequestParam(required = false) Boolean estado, @RequestParam(required = false) Long idCampania,
-            @RequestParam(required = false) Long idOperacion, @RequestParam(required = false) Long idSupervisor
+            @RequestParam(required = false, defaultValue = "true") Boolean estado,
+            @RequestParam(required = false) String filtro
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                ResponseConstruct.generarRespuestaExitosa(
-                        equipoService.obtenerEquiposPaginado(
-                                page, size, (estado == null || estado), idCampania,
-                                idOperacion, idSupervisor
-                        )));
+                ResponseConstruct.generarRespuestaExitosa(equipoService.obtenerEquiposPaginado(
+                                page, size, estado, filtro)));
     }
 
     // Mensaje - http://localhost:9890/api/v1/equipos
