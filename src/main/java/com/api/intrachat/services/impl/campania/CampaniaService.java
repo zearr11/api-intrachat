@@ -3,9 +3,10 @@ package com.api.intrachat.services.impl.campania;
 import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.CampaniaRequest;
 import com.api.intrachat.dto.request.CampaniaRequest2;
-import com.api.intrachat.dto.response.CampaniaResponse;
+import com.api.intrachat.dto.response.CampaniaEspecialResponse;
 import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.repositories.campania.CampaniaRepository;
+import com.api.intrachat.repositories.campania.projections.CampaniaProjection;
 import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.utils.constants.CampaniaConstants;
@@ -61,18 +62,20 @@ public class CampaniaService implements ICampaniaService {
     }
 
     @Override
-    public PaginatedResponse<List<CampaniaResponse>> obtenerCampaniasPaginado(int page, int size,
-                                                                              boolean estado, String filtro) {
+    public PaginatedResponse<List<CampaniaEspecialResponse>> obtenerCampaniasPaginado(int page, int size,
+                                                                                      boolean estado, String filtro) {
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
 
-        /*
+        if (filtro != null && filtro.isBlank()) {
+            filtro = null;
+        }
 
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombre").ascending());
-        Page<Campania> listado = campaniaRepository.buscarPorFiltro(estado, filtro, pageable);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("nombreComercialEmpresa").ascending());
+        Page<CampaniaProjection> listado = campaniaRepository.buscarCampaniasPaginado(filtro, estado, pageable);
 
-        List<CampaniaResponse> campanias = listado.getContent()
+        List<CampaniaEspecialResponse> campanias = listado.getContent()
                 .stream()
                 .map(CampaniaMapper::campaniaResponse)
                 .toList();
@@ -85,11 +88,6 @@ public class CampaniaService implements ICampaniaService {
                 listado.getTotalPages(),
                 campanias
         );
-
-
-        */
-
-        return null;
     }
 
     @Override

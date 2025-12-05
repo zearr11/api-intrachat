@@ -10,17 +10,23 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class CampaniaResponse {
+public class CampaniaEspecialResponse {
 
     private Long id;
-    private String nombre;
-
-    private EmpresaResponse empresa;
+    private String nombreComercialEmpresa;
     private AreaAtencion areaAtencion;
-
     private MedioComunicacion medioComunicacion;
-    private Boolean estado;
 
+    private Integer totalOperacionesActivas;
+    private Integer totalOperacionesInactivas;
+
+    private Integer totalEquiposActivos;
+    private Integer totalEquiposInactivos;
+
+    private Integer totalUsuariosActivos;
+    private Integer totalUsuariosInactivos;
+
+    private Boolean estado;
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimaModificacion;
 

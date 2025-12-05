@@ -10,7 +10,7 @@ import lombok.*;
 public class OperacionResponse {
 
     private Long id;
-    private CampaniaResponse campania;
+    private CampaniaEspecialResponse campania;
     private UsuarioResponse jefeOperacion;
     private Boolean estado;
 

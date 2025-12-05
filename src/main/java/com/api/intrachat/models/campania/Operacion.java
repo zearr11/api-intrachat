@@ -21,11 +21,15 @@ public class Operacion {
     private Boolean estado;
 
     @ManyToOne
+    @JoinColumn(name = "fk_id_sede")
+    private Sede sede;
+
+    @ManyToOne
     @JoinColumn(name = "fk_id_campania")
     private Campania campania;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_usuario")
+    @JoinColumn(name = "fk_id_jefe_operacion")
     private Usuario jefeOperacion;
 
 }

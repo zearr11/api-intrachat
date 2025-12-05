@@ -19,13 +19,10 @@ public class Equipo {
     private Long id;
 
     @Column(nullable = false)
-    private Integer numeroEquipo;
-
-    @Column(nullable = false)
     private Boolean estado;
 
     @ManyToOne
-    @JoinColumn(name = "fk_id_usuario")
+    @JoinColumn(name = "fk_id_supervisor")
     private Usuario supervisor;
 
     @OneToOne

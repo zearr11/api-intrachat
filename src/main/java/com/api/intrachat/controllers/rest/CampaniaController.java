@@ -6,7 +6,6 @@ import com.api.intrachat.dto.request.CampaniaRequest2;
 import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constructs.ResponseConstruct;
-import com.api.intrachat.utils.mappers.CampaniaMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,18 +23,24 @@ public class CampaniaController {
     // Entidad - http://localhost:9890/api/v1/campanias
     @GetMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> obtenerCampaniaPorID(@PathVariable Long id) {
+        /*
         return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
                 CampaniaMapper.campaniaResponse(campaniaService.obtenerCampaniaPorID(id))
         ));
+        */
+        return null;
     }
 
     // Lista Normal - http://localhost:9890/api/v1/campanias/empresas/idempresa
     @GetMapping("/empresas/{idEmpresa}")
     public ResponseEntity<GeneralResponse<?>> buscarCampaniasPorEmpresa(@PathVariable Long idEmpresa) {
+        /*
         return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
                 campaniaService.obtenerCampaniasPorEmpresa(idEmpresa).stream()
                         .map(CampaniaMapper::campaniaResponse).toList()
         ));
+        */
+        return null;
     }
 
     // Lista Paginada - http://localhost:9890/api/v1/campanias/paginacion
