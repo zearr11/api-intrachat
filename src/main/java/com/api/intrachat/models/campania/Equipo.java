@@ -5,6 +5,8 @@ import com.api.intrachat.models.general.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "equipos")
 @AllArgsConstructor
@@ -18,9 +20,6 @@ public class Equipo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Boolean estado;
-
     @ManyToOne
     @JoinColumn(name = "fk_id_supervisor")
     private Usuario supervisor;
@@ -32,5 +31,10 @@ public class Equipo {
     @ManyToOne
     @JoinColumn(name = "fk_id_operacion")
     private Operacion operacion;
+
+    @Column(nullable = false)
+    private LocalDateTime fechaCreacion;
+
+    private LocalDateTime fechaCierre;
 
 }

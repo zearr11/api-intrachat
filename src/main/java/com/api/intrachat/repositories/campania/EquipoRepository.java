@@ -1,6 +1,7 @@
 package com.api.intrachat.repositories.campania;
 
 import com.api.intrachat.models.campania.Equipo;
+import com.api.intrachat.models.chat.Grupo;
 import com.api.intrachat.repositories.campania.projections.EquipoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,15 +9,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface EquipoRepository extends JpaRepository<Equipo, Long> {
+
+    Optional<Equipo> findByGrupo(Grupo grupo);
 
     @Query(
             value = """
-            SELECT 
+            SELECT
                 eq.id AS idEquipo,
                 s.nombre AS sede,
                 ca.nombre AS campania,
-                eq.estado AS estado,
+                eq.fecha_creacion AS fechaCreacion,
+                eq.fecha_cierre AS fechaCierre,
                 CONCAT(p_jefe.nombres, ' ', p_jefe.apellidos) AS jefeOperacion,
                 CONCAT(p_sup.nombres, ' ', p_sup.apellidos) AS supervisor,
                 g.nombre AS nombreEquipo,
@@ -49,7 +55,10 @@ public interface EquipoRepository extends JpaRepository<Equipo, Long> {
             JOIN personas p_sup ON u_sup.fk_id_persona = p_sup.id
 
             WHERE 
-                eq.estado = :estadoEquipo
+                (
+                 (:estadoEquipo = TRUE AND eq.fecha_cierre IS NULL) OR
+                 (:estadoEquipo = FALSE AND eq.fecha_cierre IS NOT NULL)
+                )
                 AND (
                     :filtro IS NULL OR :filtro = '' OR
                     s.nombre LIKE CONCAT('%', :filtro, '%') OR
@@ -71,8 +80,11 @@ public interface EquipoRepository extends JpaRepository<Equipo, Long> {
             JOIN usuarios u_jefe ON o.fk_id_jefe_operacion = u_jefe.id
             JOIN usuarios u_sup ON eq.fk_id_supervisor = u_sup.id
 
-            WHERE 
-                eq.estado = :estadoEquipo
+            WHERE
+                (
+                 (:estadoEquipo = TRUE AND eq.fecha_cierre IS NULL) OR
+                 (:estadoEquipo = FALSE AND eq.fecha_cierre IS NOT NULL)
+                )
                 AND (
                     :filtro IS NULL OR :filtro = '' OR
                     s.nombre LIKE CONCAT('%', :filtro, '%') OR

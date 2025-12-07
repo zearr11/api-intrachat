@@ -6,6 +6,7 @@ import com.api.intrachat.services.interfaces.general.IUsuarioService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constructs.ResponseConstruct;
 import com.api.intrachat.dto.generics.GeneralResponse;
+import com.api.intrachat.utils.enums.Cargo;
 import com.api.intrachat.utils.mappers.UsuarioMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,16 +39,33 @@ public class UsuarioController {
         ));
     }
 
+    @GetMapping("/paginacion/equipos")
+    public ResponseEntity<GeneralResponse<?>> buscarUsuariosConEquipoYSinCampaniaPaginado(
+            @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
+            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
+            @RequestParam(required = false) Boolean estado,
+            @RequestParam(required = false) String filtro,
+            @RequestParam(required = false) Cargo cargo,
+            @RequestParam(required = false) Long idEquipo) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(usuarioService.obtenerUsuariosDeEquipoYSinCampania(
+                        page, size, (estado == null || estado), cargo, filtro, idEquipo)
+                )
+        );
+    }
+
     // Lista Paginada - http://localhost:9890/api/v1/usuarios/paginacion
     @GetMapping("/paginacion")
     public ResponseEntity<GeneralResponse<?>> buscarUsuariosPaginado(
-                    @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
-                    @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
-                    @RequestParam(required = false) Boolean estado,
-                    @RequestParam(required = false) String filtro) {
+            @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
+            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
+            @RequestParam(required = false) Boolean estado,
+            @RequestParam(required = false) String filtro,
+            @RequestParam(required = false) Cargo cargo,
+            @RequestParam(required = false) Boolean enCampania) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(usuarioService.obtenerUsuariosPaginado(
-                        page, size, (estado == null || estado), filtro)
+                        page, size, (estado == null || estado), filtro, cargo, enCampania)
                 )
         );
     }
@@ -56,7 +74,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<GeneralResponse<?>> registrarUsuario(@RequestBody UsuarioRequest usuarioRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseConstruct.generarRespuestaExitosa(
-                        usuarioService.crearUsuario(usuarioRequest)
+                usuarioService.crearUsuario(usuarioRequest)
         ));
     }
 

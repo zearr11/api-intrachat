@@ -6,6 +6,7 @@ public interface OperacionProjection {
 
     Long getId();
     String getCampania();
+    String getEmpresa();
     String getSede();
     String getJefeOperacion();
 

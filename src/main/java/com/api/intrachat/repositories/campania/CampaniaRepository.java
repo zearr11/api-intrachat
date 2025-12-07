@@ -44,12 +44,12 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
                 (SELECT COUNT(*) 
                  FROM equipos eq 
                  JOIN operaciones o ON eq.fk_id_operacion = o.id
-                 WHERE o.fk_id_campania = c.id AND eq.estado = 1) AS totalEquiposActivos,
+                 WHERE o.fk_id_campania = c.id AND eq.fecha_cierre IS NULL) AS totalEquiposActivos,
 
                 (SELECT COUNT(*) 
                  FROM equipos eq 
                  JOIN operaciones o ON eq.fk_id_operacion = o.id
-                 WHERE o.fk_id_campania = c.id AND eq.estado = 0) AS totalEquiposInactivos,
+                 WHERE o.fk_id_campania = c.id AND eq.fecha_cierre IS NOT NULL) AS totalEquiposInactivos,
 
                 /* Totales de usuarios */
                 (SELECT COUNT(*) 

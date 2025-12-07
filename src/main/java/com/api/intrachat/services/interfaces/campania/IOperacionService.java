@@ -10,7 +10,8 @@ public interface IOperacionService {
 
     Operacion obtenerOperacionPorID(Long id);
     PaginatedResponse<List<OperacionEspecialResponse>> obtenerOperacionesPaginado(int page, int size,
-                                                                                  boolean estado, Long idCampania);
+                                                                                  boolean estado, Long idCampania,
+                                                                                  String filtro);
     String crearOperacion(OperacionRequest operacionRequest);
     String finalizarOperacion(Long idOperacion);
 

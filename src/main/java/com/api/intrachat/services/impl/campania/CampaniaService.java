@@ -88,7 +88,7 @@ public class CampaniaService implements ICampaniaService {
 
         List<CampaniaEspecialResponse> campanias = listado.getContent()
                 .stream()
-                .map(CampaniaMapper::campaniaResponse)
+                .map(CampaniaMapper::campaniaEspecialResponse)
                 .toList();
 
         return new PaginatedResponse<>(

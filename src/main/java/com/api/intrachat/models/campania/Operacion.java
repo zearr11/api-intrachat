@@ -3,7 +3,6 @@ package com.api.intrachat.models.campania;
 import com.api.intrachat.models.general.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity

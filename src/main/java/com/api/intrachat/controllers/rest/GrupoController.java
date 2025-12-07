@@ -37,7 +37,9 @@ public class GrupoController {
         Grupo grupo = grupoService.obtenerGrupoPorSala(idSala);
         if (grupo == null)
             throw new ErrorException404(GeneralConstants.MENSAJE_GENERICO_NO_EXISTE);
-        List<Integrante> integrantes = salaService.obtenerIntegrantesDeSala(idSala);
+        List<Integrante> integrantes = salaService.obtenerIntegrantesDeSala(idSala).stream()
+                .filter(Integrante::getEstado)
+                .toList();
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(GrupoMapper.grupoResponse(grupo, integrantes))

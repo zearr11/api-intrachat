@@ -4,6 +4,7 @@ import com.api.intrachat.dto.request.IntegranteRequest;
 import com.api.intrachat.dto.request.IntegranteRequest2;
 import com.api.intrachat.dto.request.SalaRequest;
 import com.api.intrachat.dto.request.SalaRequest2;
+import com.api.intrachat.models.campania.EquipoUsuarios;
 import com.api.intrachat.models.chat.Integrante;
 import com.api.intrachat.models.chat.Sala;
 import com.api.intrachat.models.general.Usuario;
@@ -16,9 +17,7 @@ import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +69,6 @@ public class SalaService implements ISalaService  {
     @Override
     public List<Integrante> obtenerIntegrantesDeSala(Long idSala) {
         Sala sala = obtenerSalaPorId(idSala);
-
         return integranteRepository.findBySala(sala);
     }
 
@@ -99,27 +97,65 @@ public class SalaService implements ISalaService  {
         Sala sala = obtenerSalaPorId(id);
         List<Integrante> integrantesActuales = obtenerIntegrantesDeSala(sala.getId());
 
-        // Convertimos a mapa para accesos rápidos
-        Map<Long, Integrante> mapaActuales = integrantesActuales.stream()
-                .collect(Collectors.toMap(i -> i.getUsuario().getId(), i -> i));
+        // AGRUPAR TODAS LAS FILAS DE CADA USUARIO
+        Map<Long, List<Integrante>> mapaPorUsuario =
+                integrantesActuales.stream()
+                        .collect(Collectors.groupingBy(i -> i.getUsuario().getId()));
 
-        // IDs enviados en el request
+        // MAPA: usuario → su fila ACTIVA o la última registrada
+        Map<Long, Integrante> mapaActuales = mapaPorUsuario.entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            List<Integrante> lista = entry.getValue();
+
+                            // priorizar activo
+                            return lista.stream()
+                                    .filter(Integrante::getEstado)
+                                    .findFirst()
+                                    // sino, tomar el último insertado
+                                    .orElseGet(() ->
+                                            lista.stream()
+                                                    .max(Comparator.comparing(Integrante::getId))
+                                                    .orElse(lista.getFirst())
+                                    );
+                        }
+                ));
+
+        // IDs enviados
         Set<Long> idsNuevos = salaRequest.getIntegrantes().stream()
                 .map(IntegranteRequest2::getIdUsuario)
                 .collect(Collectors.toSet());
 
-        // 1. Procesar integrantes del request
+        // 1. PROCESAR LOS QUE VIENEN EN EL REQUEST
         for (IntegranteRequest2 req : salaRequest.getIntegrantes()) {
 
-            Integrante existente = mapaActuales.get(req.getIdUsuario());
+            List<Integrante> historial = mapaPorUsuario.get(req.getIdUsuario());
 
-            if (existente != null) {
-                // Actualizar
-                if (req.getEstado() != null) existente.setEstado(req.getEstado());
-                if (req.getTipoPermiso() != null) existente.setPermiso(req.getTipoPermiso());
-                integranteRepository.save(existente);
+            if (historial != null) {
+
+                // DESACTIVAR TODAS LAS FILAS PREVIAS
+                for (Integrante reg : historial) {
+                    if (reg.getEstado()) {
+                        reg.setEstado(false);
+                        integranteRepository.save(reg);
+                    }
+                }
+
+                // REACTIVAR ÚNICA FILA (NO CREAR OTRA)
+                Integrante activo = historial.stream()
+                        .max(Comparator.comparing(Integrante::getId))
+                        .orElse(null);
+
+                if (activo != null) {
+                    activo.setEstado(req.getEstado());
+                    activo.setPermiso(req.getTipoPermiso());
+                    integranteRepository.save(activo);
+                }
+
             } else {
-                // Crear nuevo integrante
+                // NO EXISTE NINGÚN REGISTRO, CREAR UNO
                 Integrante nuevo = new Integrante(
                         null,
                         req.getTipoPermiso(),
@@ -131,15 +167,24 @@ public class SalaService implements ISalaService  {
             }
         }
 
-        // 2. Desactivar los que ya no están en el request
-        for (Integrante actual : integrantesActuales) {
-            if (!idsNuevos.contains(actual.getUsuario().getId())) {
-                actual.setEstado(false);
-                integranteRepository.save(actual);
+        // 2. DESACTIVAR TODOS LOS QUE YA NO ESTÁN EN EL REQUEST
+        for (Map.Entry<Long, List<Integrante>> entry : mapaPorUsuario.entrySet()) {
+
+            Long idUsuario = entry.getKey();
+
+            if (!idsNuevos.contains(idUsuario)) {
+                // DESACTIVAR TODOS LOS REGISTROS ACTIVOS DE ESE USUARIO
+                for (Integrante reg : entry.getValue()) {
+                    if (reg.getEstado()) {
+                        reg.setEstado(false);
+                        integranteRepository.save(reg);
+                    }
+                }
             }
         }
 
         return sala;
     }
+
 
 }

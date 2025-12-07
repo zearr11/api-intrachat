@@ -34,11 +34,12 @@ public class OperacionController {
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
             @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
             @RequestParam(defaultValue = "true") Boolean estado,
-            @RequestParam(required = false) Long idCampania
+            @RequestParam(required = false) Long idCampania,
+            @RequestParam(required = false) String filtro
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(
-                    operacionService.obtenerOperacionesPaginado(page, size, estado, idCampania)
+                    operacionService.obtenerOperacionesPaginado(page, size, estado, idCampania, filtro)
                 ));
     }
 

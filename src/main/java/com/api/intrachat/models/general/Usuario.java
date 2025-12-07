@@ -1,5 +1,6 @@
 package com.api.intrachat.models.general;
 
+import com.api.intrachat.utils.enums.Cargo;
 import com.api.intrachat.utils.enums.Rol;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +28,10 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol rol;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Cargo cargo;
 
     @Column(nullable = false)
     private Boolean estado;

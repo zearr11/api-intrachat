@@ -1,11 +1,14 @@
 package com.api.intrachat.repositories.campania.projections;
 
+import java.time.LocalDateTime;
+
 public interface EquipoProjection {
 
     Long getIdEquipo();
     String getSede();
     String getCampania();
-    Boolean getEstado();
+    LocalDateTime getFechaCreacion();
+    LocalDateTime getFechaCierre();
     String getJefeOperacion();
     String getSupervisor();
     String getNombreEquipo();

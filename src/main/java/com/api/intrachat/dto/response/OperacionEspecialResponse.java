@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class OperacionEspecialResponse {
 
     private Long id;
+    private String empresa;
     private String campania;
     private String sede;
     private String jefeOperacion;

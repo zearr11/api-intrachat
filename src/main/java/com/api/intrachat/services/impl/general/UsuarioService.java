@@ -5,6 +5,7 @@ import com.api.intrachat.models.general.Archivo;
 import com.api.intrachat.services.interfaces.general.IArchivoService;
 import com.api.intrachat.services.interfaces.other.IEmailService;
 import com.api.intrachat.utils.constructs.RandomConstruct;
+import com.api.intrachat.utils.enums.Cargo;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.models.CustomUserDetails;
@@ -31,9 +32,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.domain.Sort;
 
 @Service
@@ -102,8 +105,9 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosPaginado(int page, int size,
-                                                                            boolean estado, String filtro) {
+    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeEquipoYSinCampania(int page, int size,
+                                                                                        boolean estado, Cargo cargo,
+                                                                                        String filtro, Long idEquipo) {
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
@@ -115,7 +119,53 @@ public class UsuarioService implements IUsuarioService {
                         .ascending().and(Sort.by("persona.apellidos").ascending())
         );
 
-        Page<Usuario> listado = usuarioRepository.buscarUsuariosConPaginacion(estado, usuarioActual.getId(), filtro, pageable);
+        Page<Usuario> listado = usuarioRepository.buscarUsuariosDeEquipoYsinCampania(
+                estado,
+                cargo,
+                filtro,
+                usuarioActual.getId(),
+                idEquipo,
+                pageable
+        );
+
+        List<UsuarioResponse> usuarios = listado.getContent()
+                .stream()
+                .map(UsuarioMapper::usuarioResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                page,
+                size,
+                usuarios.size(),
+                listado.getTotalElements(),
+                listado.getTotalPages(),
+                usuarios
+        );
+    }
+
+    @Override
+    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosPaginado(int page, int size,
+                                                                            boolean estado, String filtro,
+                                                                            Cargo cargo, Boolean enCampania) {
+        if (page < 1 || size < 1) {
+            throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
+        }
+
+        Usuario usuarioActual = obtenerUsuarioActual();
+
+        Pageable pageable = PageRequest.of(
+                page - 1, size, Sort.by("persona.nombres")
+                        .ascending().and(Sort.by("persona.apellidos").ascending())
+        );
+
+        Page<Usuario> listado = usuarioRepository.buscarUsuariosConPaginacion(
+                estado,
+                usuarioActual.getId(),
+                filtro,
+                cargo,
+                enCampania,
+                pageable
+        );
 
         List<UsuarioResponse> usuarios = listado.getContent()
                 .stream()
@@ -182,6 +232,7 @@ public class UsuarioService implements IUsuarioService {
                 .email(usuarioRequest.getEmail())
                 .password(passwordEncoder.encode(txtPassword))
                 .rol(usuarioRequest.getRol())
+                .cargo(usuarioRequest.getCargo())
                 .estado(GeneralConstants.ESTADO_DEFAULT)
                 .fechaCreacion(fechaActual)
                 .ultimaModificacion(fechaActual)
@@ -288,6 +339,10 @@ public class UsuarioService implements IUsuarioService {
         if (usuarioRequest.getRol() != null) {
             usuarioModificar.setRol(usuarioRequest.getRol());
         }
+        // Cargo
+        if (usuarioRequest.getCargo() != null) {
+            usuarioModificar.setCargo(usuarioRequest.getCargo());
+        }
         // Estado
         if (usuarioRequest.getEstado() != null) {
             usuarioModificar.setEstado(usuarioRequest.getEstado());
@@ -295,7 +350,7 @@ public class UsuarioService implements IUsuarioService {
 
         // Falta implementar validación para el cambio de rol no permitiéndolo en caso tenga campaña activa
 
-        // Actualizar ultima modificacion de entidad
+        // Actualizar ultima modificación de entidad
         usuarioModificar.setUltimaModificacion(LocalDateTime.now());
 
         // Actualizar entidad en tabla

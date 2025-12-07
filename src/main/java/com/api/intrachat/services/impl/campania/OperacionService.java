@@ -53,7 +53,8 @@ public class OperacionService implements IOperacionService {
 
     @Override
     public PaginatedResponse<List<OperacionEspecialResponse>> obtenerOperacionesPaginado(int page, int size,
-                                                                                         boolean estado, Long idCampania) {
+                                                                                         boolean estado, Long idCampania,
+                                                                                         String filtro) {
         if (page < 1 || size < 1) {
             throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
         }
@@ -71,12 +72,13 @@ public class OperacionService implements IOperacionService {
         Page<OperacionProjection> listado = operacionRepository.buscarOperacionesPorCampaniaYEstado(
                 idCampania,
                 mostrarActivas,
+                filtro,
                 pageable
         );
 
         List<OperacionEspecialResponse> operaciones = listado.getContent()
                 .stream()
-                .map(OperacionMapper::operacionResponse)
+                .map(OperacionMapper::operacionEspecialResponse)
                 .toList();
 
         return new PaginatedResponse<>(

@@ -16,4 +16,12 @@ public class UsuarioHelper {
         return primerNombre + " " + primerApellido;
     }
 
+    public static String obtenerPrimerApellido(String apellidos) {
+        if (apellidos == null || apellidos.isBlank()) {
+            throw new IllegalArgumentException("El parámetro 'apellidos' no puede ser nulo o vacío.");
+        }
+
+        return apellidos.trim().split("\\s+")[0];
+    }
+
 }
