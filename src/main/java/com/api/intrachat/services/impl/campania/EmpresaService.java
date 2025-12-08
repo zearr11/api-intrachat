@@ -4,8 +4,11 @@ import com.api.intrachat.dto.generics.PaginatedResponse;
 import com.api.intrachat.dto.request.EmpresaRequest;
 import com.api.intrachat.dto.request.EmpresaRequest2;
 import com.api.intrachat.dto.response.EmpresaResponse;
+import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.models.campania.Empresa;
+import com.api.intrachat.repositories.campania.CampaniaRepository;
 import com.api.intrachat.repositories.campania.EmpresaRepository;
+import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constants.GeneralConstants;
@@ -13,6 +16,7 @@ import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
 import com.api.intrachat.utils.mappers.EmpresaMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,9 +30,12 @@ import java.util.Optional;
 public class EmpresaService implements IEmpresaService {
 
     private final EmpresaRepository empresaRepository;
+    private final ICampaniaService campaniaService;
 
-    public EmpresaService(EmpresaRepository empresaRepository) {
+    public EmpresaService(EmpresaRepository empresaRepository,
+                          @Lazy ICampaniaService campaniaService) {
         this.empresaRepository = empresaRepository;
+        this.campaniaService = campaniaService;
     }
 
     @Override
@@ -136,7 +143,25 @@ public class EmpresaService implements IEmpresaService {
         }
         // Estado
         if (empresaRequest.getEstado() != null) {
-            empresaActualizar.setEstado(empresaRequest.getEstado());
+
+            if (empresaRequest.getEstado())
+                empresaActualizar.setEstado(true);
+            else {
+                List<Campania> campanias = campaniaService.obtenerCampaniasPorEmpresa(empresaActualizar.getId());
+
+                if (!campanias.isEmpty()) {
+                    campanias.forEach(val -> {
+                        boolean estadoCampania = val.getEstado();
+
+                        if (estadoCampania) throw new ErrorException409(
+                                "La empresa cuenta con campañas activas, no es posible deshabilitarlo."
+                        );
+                    });
+                }
+
+                empresaActualizar.setEstado(false);
+            }
+
         }
 
         empresaRepository.save(empresaActualizar);

@@ -5,18 +5,21 @@ import com.api.intrachat.dto.request.OperacionRequest;
 import com.api.intrachat.dto.response.OperacionEspecialResponse;
 import com.api.intrachat.models.campania.Campania;
 import com.api.intrachat.models.campania.Operacion;
+import com.api.intrachat.models.campania.Sede;
 import com.api.intrachat.models.general.Usuario;
 import com.api.intrachat.repositories.campania.OperacionRepository;
 import com.api.intrachat.repositories.campania.projections.OperacionProjection;
 import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
 import com.api.intrachat.services.interfaces.campania.IOperacionService;
+import com.api.intrachat.services.interfaces.campania.ISedeService;
 import com.api.intrachat.services.interfaces.general.IUsuarioService;
 import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.utils.mappers.OperacionMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,15 +31,19 @@ import java.util.List;
 public class OperacionService implements IOperacionService {
 
     private final OperacionRepository operacionRepository;
+
+    private final ISedeService sedeService;
     private final ICampaniaService campaniaService;
     private final IEmpresaService empresaService;
     private final IUsuarioService usuarioService;
 
     public OperacionService(OperacionRepository operacionRepository,
-                            ICampaniaService campaniaService,
+                            @Lazy ISedeService sedeService,
+                            @Lazy ICampaniaService campaniaService,
                             IEmpresaService empresaService,
                             IUsuarioService usuarioService) {
         this.operacionRepository = operacionRepository;
+        this.sedeService = sedeService;
         this.campaniaService = campaniaService;
         this.empresaService = empresaService;
         this.usuarioService = usuarioService;
@@ -49,6 +56,16 @@ public class OperacionService implements IOperacionService {
                         GeneralConstants.mensajeEntidadNoExiste("Operación", id.toString())
                 )
         );
+    }
+
+    @Override
+    public List<Operacion> obtenerOperacionesPorSede(Long idSede) {
+        return operacionRepository.findBySede(sedeService.obtenerSedePorID(idSede));
+    }
+
+    @Override
+    public List<Operacion> obtenerOperacionesPorCampania(Long idCampania) {
+        return operacionRepository.findByCampania(campaniaService.obtenerCampaniaPorID(idCampania));
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.Optional;
 
 public interface SedeRepository extends JpaRepository<Sede, Long> {
 
@@ -25,5 +26,7 @@ public interface SedeRepository extends JpaRepository<Sede, Long> {
             @Param("estado") boolean estado,
             Pageable pageable
     );
+
+    Optional<Sede> findByNombre(String nombre);
 
 }

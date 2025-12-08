@@ -6,23 +6,29 @@ import com.api.intrachat.dto.request.CampaniaRequest2;
 import com.api.intrachat.dto.response.CampaniaEspecialResponse;
 import com.api.intrachat.dto.response.CampaniaSimpleResponse;
 import com.api.intrachat.models.campania.Campania;
+import com.api.intrachat.models.campania.Empresa;
+import com.api.intrachat.models.campania.Operacion;
 import com.api.intrachat.repositories.campania.CampaniaRepository;
 import com.api.intrachat.repositories.campania.projections.CampaniaProjection;
 import com.api.intrachat.services.interfaces.campania.ICampaniaService;
 import com.api.intrachat.services.interfaces.campania.IEmpresaService;
+import com.api.intrachat.services.interfaces.campania.IOperacionService;
 import com.api.intrachat.utils.constants.CampaniaConstants;
 import com.api.intrachat.utils.constants.PaginatedConstants;
 import com.api.intrachat.utils.constants.GeneralConstants;
+import com.api.intrachat.utils.enums.AreaAtencion;
+import com.api.intrachat.utils.enums.MedioComunicacion;
 import com.api.intrachat.utils.exceptions.errors.ErrorException400;
 import com.api.intrachat.utils.exceptions.errors.ErrorException404;
 import com.api.intrachat.utils.exceptions.errors.ErrorException409;
+import com.api.intrachat.utils.helpers.CampaniaHelper;
 import com.api.intrachat.utils.mappers.CampaniaMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +38,14 @@ public class CampaniaService implements ICampaniaService {
 
     private final CampaniaRepository campaniaRepository;
 
+    private final IOperacionService operacionService;
     private final IEmpresaService empresaService;
 
     public CampaniaService(CampaniaRepository campaniaRepository,
-                           IEmpresaService empresaService) {
+                           @Lazy IOperacionService operacionService,
+                           @Lazy IEmpresaService empresaService) {
         this.campaniaRepository = campaniaRepository;
+        this.operacionService = operacionService;
         this.empresaService = empresaService;
     }
 
@@ -104,17 +113,25 @@ public class CampaniaService implements ICampaniaService {
     @Override
     public String crearCampania(CampaniaRequest campaniaRequest) {
 
-        Optional<Campania> campaniaCoincidente = campaniaRepository.findByNombre(campaniaRequest.getNombre());
+        Empresa empresa = empresaService.obtenerEmpresaPorID(campaniaRequest.getIdEmpresa());
+        AreaAtencion areaAtencion = campaniaRequest.getAreaAtencion();
+        MedioComunicacion medioComunicacion = campaniaRequest.getMedioComunicacion();
+
+        String nombre = CampaniaHelper.generarNombreCampania(empresa.getNombreComercial(),
+                areaAtencion, medioComunicacion);
+
+        Optional<Campania> campaniaCoincidente = campaniaRepository.findByNombre(nombre);
+
         if (campaniaCoincidente.isPresent())
             throw new ErrorException409(CampaniaConstants.ERROR_NOMBRE_REGISTRADO);
 
         final LocalDateTime fechaHoy = LocalDateTime.now();
 
         Campania nuevaCampania = Campania.builder()
-                .nombre(campaniaRequest.getNombre())
-                .empresa(empresaService.obtenerEmpresaPorID(campaniaRequest.getIdEmpresa()))
-                .areaAtencion(campaniaRequest.getAreaAtencion())
-                .medioComunicacion(campaniaRequest.getMedioComunicacion())
+                .nombre(nombre)
+                .empresa(empresa)
+                .areaAtencion(areaAtencion)
+                .medioComunicacion(medioComunicacion)
                 .estado(GeneralConstants.ESTADO_DEFAULT)
                 .fechaCreacion(fechaHoy)
                 .ultimaModificacion(fechaHoy)
@@ -127,17 +144,12 @@ public class CampaniaService implements ICampaniaService {
 
     @Override
     public String modificarCampania(Long id, CampaniaRequest2 campaniaRequest) {
-
         // Declaracion fecha actual
         final LocalDateTime fechaHoy = LocalDateTime.now();
 
         // Busqueda de entidad
         Campania campaniaModificar = obtenerCampaniaPorID(id);
 
-        // Nombre
-        if (campaniaRequest.getNombre() != null && !campaniaRequest.getNombre().isBlank()) {
-            campaniaModificar.setNombre(campaniaRequest.getNombre());
-        }
         // Empresa
         if (campaniaRequest.getIdEmpresa() != null) {
             campaniaModificar.setEmpresa(empresaService.obtenerEmpresaPorID(campaniaRequest.getIdEmpresa()));
@@ -152,17 +164,40 @@ public class CampaniaService implements ICampaniaService {
         }
         // Estado
         if (campaniaRequest.getEstado() != null) {
-            campaniaModificar.setEstado(campaniaRequest.getEstado());
+
+            if (campaniaRequest.getEstado())
+                campaniaModificar.setEstado(true);
+            else {
+                List<Operacion> operaciones = operacionService.obtenerOperacionesPorCampania(campaniaModificar.getId());
+
+                if (!operaciones.isEmpty()) {
+                    operaciones.forEach(val -> {
+                        boolean estadoOperacion = val.getFechaFinalizacion() == null;
+
+                        if (estadoOperacion) throw new ErrorException409(
+                                "La campaña cuenta con operaciones activas, no es posible deshabilitarlo."
+                        );
+                    });
+                }
+
+                campaniaModificar.setEstado(false);
+            }
+
         }
+
+        String nombre = CampaniaHelper.generarNombreCampania(campaniaModificar.getEmpresa().getNombreComercial(),
+                campaniaModificar.getAreaAtencion(), campaniaModificar.getMedioComunicacion());
 
         // Actualizar ultima modificación
         campaniaModificar.setUltimaModificacion(fechaHoy);
 
         // Validación: El nombre es unique
-        Optional<Campania> campaniaCoincidente = campaniaRepository.findByNombre(campaniaRequest.getNombre());
+        Optional<Campania> campaniaCoincidente = campaniaRepository.findByNombre(nombre);
         if (campaniaCoincidente.isPresent()
                 && !campaniaCoincidente.get().getId().equals(campaniaModificar.getId()))
             throw new ErrorException409(CampaniaConstants.ERROR_NOMBRE_REGISTRADO);
+
+        campaniaRepository.save(campaniaModificar);
 
         return GeneralConstants.mensajeEntidadActualizada("Campaña");
     }

@@ -11,10 +11,7 @@ import lombok.*;
 @Builder
 public class CampaniaRequest2 {
 
-    private String nombre;
-
     private Long idEmpresa;
-
     private AreaAtencion areaAtencion;
     private MedioComunicacion medioComunicacion;
     private Boolean estado;
