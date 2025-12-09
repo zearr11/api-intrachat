@@ -104,6 +104,11 @@ public class EquipoService implements IEquipoService {
     }
 
     @Override
+    public List<Equipo> obtenerEquiposRegular() {
+        return equipoRepository.findAll();
+    }
+
+    @Override
     public PaginatedResponse<List<EquipoEspecialResponse>> obtenerEquiposPaginado(int page, int size,
                                                                                   boolean estado, String filtro) {
         if (page < 1 || size < 1) {

@@ -98,6 +98,11 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
+    public List<Usuario> obtenerUsuariosNormal() {
+        return usuarioRepository.findAll();
+    }
+
+    @Override
     public List<Usuario> buscarContactosPorCampania(String filtro, Long idCampania, Long idUsuarioAExcluir) {
         return usuarioRepository.buscarContactosPorCampania(
                 filtro, idCampania, idUsuarioAExcluir
@@ -113,7 +118,7 @@ public class UsuarioService implements IUsuarioService {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.unsorted());
 
-        Page<Usuario> listado = usuarioRepository.findUsuariosConOperacionesRegular(
+        Page<Usuario> listado = usuarioRepository.findJefesOperacionSinOperacionVigente(
                 filtro,
                 pageable
         );

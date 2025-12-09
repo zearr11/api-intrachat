@@ -71,6 +71,11 @@ public class OperacionService implements IOperacionService {
     }
 
     @Override
+    public List<Operacion> obtenerOperacionesRegular() {
+        return operacionRepository.findAll();
+    }
+
+    @Override
     public PaginatedResponse<List<OperacionEspecialResponse>> obtenerOperacionesPaginado(int page, int size,
                                                                                          boolean estado, Long idCampania,
                                                                                          String filtro) {

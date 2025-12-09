@@ -13,6 +13,7 @@ public interface ICampaniaService {
     Campania obtenerCampaniaPorID(Long id);
     Campania obtenerCampaniaPorNombre(String nombre);
 
+    List<Campania> obtenerCampaniasNormal();
     List<Campania> obtenerCampaniasPorEmpresa(Long idEmpresa);
     // List<Campania> obtenerCampaniasPorSede(Long idSede);
 

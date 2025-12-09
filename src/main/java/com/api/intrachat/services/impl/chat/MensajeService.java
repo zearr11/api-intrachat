@@ -60,6 +60,11 @@ public class MensajeService implements IMensajeService {
     }
 
     @Override
+    public List<Mensaje> obtenerMensajesRegular() {
+        return mensajeRepository.findAll();
+    }
+
+    @Override
     public PaginatedResponse<List<MensajeResponse>> obtenerMensajesPorSala(int page, int size,
                                                                            String filtro, Long idSala) {
         if (page < 1 || size < 1) {

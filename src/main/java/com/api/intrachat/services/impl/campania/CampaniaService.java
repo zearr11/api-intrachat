@@ -66,6 +66,11 @@ public class CampaniaService implements ICampaniaService {
     }
 
     @Override
+    public List<Campania> obtenerCampaniasNormal() {
+        return campaniaRepository.findAll();
+    }
+
+    @Override
     public List<Campania> obtenerCampaniasPorEmpresa(Long idEmpresa) {
         return campaniaRepository.findByEmpresa(
                 empresaService.obtenerEmpresaPorID(idEmpresa)

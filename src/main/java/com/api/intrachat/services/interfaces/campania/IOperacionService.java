@@ -11,6 +11,7 @@ public interface IOperacionService {
     Operacion obtenerOperacionPorID(Long id);
     List<Operacion> obtenerOperacionesPorSede(Long idSede);
     List<Operacion> obtenerOperacionesPorCampania(Long idCampania);
+    List<Operacion> obtenerOperacionesRegular();
 
     PaginatedResponse<List<OperacionEspecialResponse>> obtenerOperacionesPaginado(int page, int size,
                                                                                   boolean estado, Long idCampania,

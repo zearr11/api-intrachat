@@ -13,6 +13,8 @@ public interface IMensajeService {
     // Entidad Mensaje
     Mensaje obtenerMensajePorId(Long idMensaje);
     Mensaje obtenerUltimoMensajeDeSala (Long idSala);
+    List<Mensaje> obtenerMensajesRegular();
+
     PaginatedResponse<List<MensajeResponse>> obtenerMensajesPorSala(int page, int size,
                                                                     String filtro, Long idSala);
 

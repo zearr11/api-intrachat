@@ -15,6 +15,7 @@ public interface IEquipoService {
     Equipo obtenerEquipoPorGrupo(Long idGrupo);
     EquipoResponse obtenerEquipoResponsePorId(Long id);
     List<Equipo> obtenerEquiposPorOperacion(Long idOperacion);
+    List<Equipo> obtenerEquiposRegular();
 
     PaginatedResponse<List<EquipoEspecialResponse>> obtenerEquiposPaginado(int page, int size,
                                                                            boolean estado, String filtro);
