@@ -1,6 +1,7 @@
 package com.api.intrachat.repositories.campania;
 
 import com.api.intrachat.models.campania.Equipo;
+import com.api.intrachat.models.campania.Operacion;
 import com.api.intrachat.models.chat.Grupo;
 import com.api.intrachat.repositories.campania.projections.EquipoProjection;
 import org.springframework.data.domain.Page;
@@ -9,10 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface EquipoRepository extends JpaRepository<Equipo, Long> {
 
+    List<Equipo> findByOperacion(Operacion operacion);
     Optional<Equipo> findByGrupo(Grupo grupo);
 
     @Query(

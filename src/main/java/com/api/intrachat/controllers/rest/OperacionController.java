@@ -23,8 +23,8 @@ public class OperacionController {
     // Entidad - http://localhost:9890/api/v1/operaciones/id
     @GetMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> obtenerOperacionPorID(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(null
-//                OperacionMapper.operacionResponse(operacionService.obtenerOperacionPorID(id))
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseConstruct.generarRespuestaExitosa(
+                OperacionMapper.operacionResponse(operacionService.obtenerOperacionPorID(id))
         ));
     }
 
@@ -53,8 +53,16 @@ public class OperacionController {
         );
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<GeneralResponse<?>> modificarOperacion(@PathVariable Long id,
+                                                                 @RequestBody OperacionRequest operacionRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ResponseConstruct.generarRespuestaExitosa(operacionService.modificarOperacion(id, operacionRequest))
+        );
+    }
+
     // Mensaje - http://localhost:9890/api/v1/operaciones/id
-    @PutMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<GeneralResponse<?>> finalizarOperacion(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ResponseConstruct.generarRespuestaExitosa(operacionService.finalizarOperacion(id))

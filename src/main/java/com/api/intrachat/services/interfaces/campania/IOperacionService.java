@@ -16,6 +16,7 @@ public interface IOperacionService {
                                                                                   boolean estado, Long idCampania,
                                                                                   String filtro);
     String crearOperacion(OperacionRequest operacionRequest);
+    String modificarOperacion(Long id, OperacionRequest operacionRequest);
     String finalizarOperacion(Long idOperacion);
 
 }

@@ -39,6 +39,31 @@ public class UsuarioController {
         ));
     }
 
+    @GetMapping("/paginacion/operaciones")
+    public ResponseEntity<GeneralResponse<?>> buscarUsuariosSinOperacion(
+            @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
+            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
+            @RequestParam(required = false) String filtro) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(usuarioService.obtenerUsuariosDeOperacionRegular(
+                        page, size, filtro
+                ))
+        );
+    }
+
+    @GetMapping("/paginacion/operaciones/asociados")
+    public ResponseEntity<GeneralResponse<?>> buscarUsuariosSinOperacionIncluyendoConOperacionActual(
+            @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,
+            @RequestParam(defaultValue = PaginatedConstants.LONGITUD_DEFAULT) int size,
+            @RequestParam(required = false) String filtro,
+            @RequestParam(required = false) Long idOperacion) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ResponseConstruct.generarRespuestaExitosa(usuarioService.obtenerUsuariosDeOperacionEdit(
+                        page, size, filtro, idOperacion
+                ))
+        );
+    }
+
     @GetMapping("/paginacion/equipos")
     public ResponseEntity<GeneralResponse<?>> buscarUsuariosConEquipoYSinCampaniaPaginado(
             @RequestParam(defaultValue = PaginatedConstants.PAGINA_DEFAULT) int page,

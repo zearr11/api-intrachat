@@ -17,6 +17,12 @@ public interface IUsuarioService  {
     Usuario obtenerUsuarioPorCelular(String celular);
     List<Usuario> buscarContactosPorCampania(String filtro, Long idCampania, Long idUsuarioAExcluir);
 
+    PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeOperacionRegular(int page, int size,
+                                                                               String filtro);
+    PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeOperacionEdit(int page, int size,
+                                                                            String filtro,
+                                                                            Long idOperacion);
+
     PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeEquipoYSinCampania(int page, int size,
                                                                                  boolean estado, Cargo cargo,
                                                                                  String filtro, Long idEquipo);

@@ -8,6 +8,7 @@ public interface CampaniaProjection {
     String getNombreComercialEmpresa();
     String getAreaAtencion();
     String getMedioComunicacion();
+    String getNombre();
 
     Integer getTotalOperacionesActivas();
     Integer getTotalOperacionesInactivas();

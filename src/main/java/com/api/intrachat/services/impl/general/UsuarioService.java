@@ -105,6 +105,65 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
+    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeOperacionRegular(int page, int size,
+                                                                                      String filtro) {
+        if (page < 1 || size < 1) {
+            throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.unsorted());
+
+        Page<Usuario> listado = usuarioRepository.findUsuariosConOperacionesRegular(
+                filtro,
+                pageable
+        );
+
+        List<UsuarioResponse> usuarios = listado.getContent()
+                .stream()
+                .map(UsuarioMapper::usuarioResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                page,
+                size,
+                usuarios.size(),
+                listado.getTotalElements(),
+                listado.getTotalPages(),
+                usuarios
+        );
+    }
+
+    @Override
+    public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeOperacionEdit(int page, int size,
+                                                                                   String filtro, Long idOperacion) {
+        if (page < 1 || size < 1) {
+            throw new ErrorException400(PaginatedConstants.ERROR_PAGINA_LONGITUD_INVALIDO);
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.unsorted());
+
+        Page<Usuario> listado = usuarioRepository.findUsuariosConOperacionesEdit(
+                filtro,
+                idOperacion,
+                pageable
+        );
+
+        List<UsuarioResponse> usuarios = listado.getContent()
+                .stream()
+                .map(UsuarioMapper::usuarioResponse)
+                .toList();
+
+        return new PaginatedResponse<>(
+                page,
+                size,
+                usuarios.size(),
+                listado.getTotalElements(),
+                listado.getTotalPages(),
+                usuarios
+        );
+    }
+
+    @Override
     public PaginatedResponse<List<UsuarioResponse>> obtenerUsuariosDeEquipoYSinCampania(int page, int size,
                                                                                         boolean estado, Cargo cargo,
                                                                                         String filtro, Long idEquipo) {

@@ -25,24 +25,25 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
 
     @Query(
             value = """
-            SELECT 
+            SELECT
                 c.id,
                 e.nombre_comercial AS nombreComercialEmpresa,
                 c.area_atencion AS areaAtencion,
                 c.medio_comunicacion AS medioComunicacion,
+                c.nombre AS nombre,
 
                 /* Totales de operaciones */
-                (SELECT COUNT(*) 
-                 FROM operaciones o 
+                (SELECT COUNT(*)
+                 FROM operaciones o
                  WHERE o.fk_id_campania = c.id AND o.fecha_finalizacion IS NULL) AS totalOperacionesActivas,
 
-                (SELECT COUNT(*) 
-                 FROM operaciones o 
+                (SELECT COUNT(*)
+                 FROM operaciones o
                  WHERE o.fk_id_campania = c.id AND o.fecha_finalizacion IS NOT NULL) AS totalOperacionesInactivas,
 
                 /* Totales de equipos */
-                (SELECT COUNT(*) 
-                 FROM equipos eq 
+                (SELECT COUNT(*)
+                 FROM equipos eq
                  JOIN operaciones o ON eq.fk_id_operacion = o.id
                  WHERE o.fk_id_campania = c.id AND eq.fecha_cierre IS NULL) AS totalEquiposActivos,
 
@@ -85,9 +86,9 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
             SELECT COUNT(*)
             FROM campanias c
             JOIN empresas e ON c.fk_id_empresa = e.id
-            WHERE 
+            WHERE
                 (
-                    :filtro IS NULL 
+                    :filtro IS NULL
                     OR e.nombre_comercial LIKE CONCAT('%', :filtro, '%')
                     OR c.area_atencion LIKE CONCAT('%', :filtro, '%')
                     OR c.medio_comunicacion LIKE CONCAT('%', :filtro, '%')

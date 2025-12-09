@@ -16,6 +16,7 @@ public class CampaniaEspecialResponse {
     private String nombreComercialEmpresa;
     private AreaAtencion areaAtencion;
     private MedioComunicacion medioComunicacion;
+    private String nombre;
 
     private Integer totalOperacionesActivas;
     private Integer totalOperacionesInactivas;

@@ -31,6 +31,7 @@ import com.api.intrachat.utils.constants.GeneralConstants;
 import com.api.intrachat.utils.helpers.UsuarioHelper;
 import com.api.intrachat.utils.mappers.EquipoMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,7 +53,7 @@ public class EquipoService implements IEquipoService {
     private final GrupoRepository grupoRepository;
     private final IntegranteRepository integranteRepository;
 
-    public EquipoService(IOperacionService operacionService,
+    public EquipoService(@Lazy IOperacionService operacionService,
                          IGrupoService grupoService,
                          IUsuarioService usuarioService,
                          ISalaService salaService,
@@ -95,6 +96,11 @@ public class EquipoService implements IEquipoService {
         List<EquipoUsuarios> integrantesCompletos = equipoUsuariosRepository.findByEquipo(equipo);
 
         return EquipoMapper.equipoResponse(equipo, integrantes, integrantesCompletos);
+    }
+
+    @Override
+    public List<Equipo> obtenerEquiposPorOperacion(Long idOperacion) {
+        return equipoRepository.findByOperacion(operacionService.obtenerOperacionPorID(idOperacion));
     }
 
     @Override

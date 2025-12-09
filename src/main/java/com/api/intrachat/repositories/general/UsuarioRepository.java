@@ -80,9 +80,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
                                 AND euEq.equipo.id = :idEquipo
                                 AND euEq.estado = true
                           )
-
+            
                           OR
-
+            
                           NOT EXISTS (
                               SELECT 1 FROM EquipoUsuarios euAny
                               WHERE euAny.usuario.id = u.id
@@ -124,6 +124,101 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
             @Param("filtro") String filtro,
             @Param("idCampania") Long idCampania,
             @Param("idUsuarioExcluir") Long idUsuarioExcluir
+    );
+
+    @Query(
+            value = """
+                    SELECT us.*
+                    FROM usuarios us
+                    LEFT JOIN operaciones op ON us.id = op.fk_id_jefe_operacion
+                    LEFT JOIN personas p ON us.fk_id_persona = p.id
+                    WHERE 
+                        (op.fecha_finalizacion IS NULL AND op.fecha_creacion IS NULL)
+                        AND us.estado = TRUE
+                        AND us.cargo = 'JEFE_DE_OPERACION'
+                        AND (
+                            :filtro IS NULL OR :filtro = '' OR
+                            LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(p.numero_doc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(us.email) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(p.celular) LIKE LOWER(CONCAT('%', :filtro, '%'))
+                        )
+                    ORDER BY p.nombres ASC, p.apellidos ASC
+                    """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM usuarios us
+                    LEFT JOIN operaciones op ON us.id = op.fk_id_jefe_operacion
+                    LEFT JOIN personas p ON us.fk_id_persona = p.id
+                    WHERE
+                        (op.fecha_finalizacion IS NULL AND op.fecha_creacion IS NULL)
+                        AND us.estado = TRUE
+                        AND us.cargo = 'JEFE_DE_OPERACION'
+                        AND (
+                            :filtro IS NULL OR :filtro = '' OR
+                            LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(p.numero_doc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(us.email) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                            LOWER(p.celular) LIKE LOWER(CONCAT('%', :filtro, '%'))
+                        )
+                    """,
+            nativeQuery = true
+    )
+    Page<Usuario> findUsuariosConOperacionesRegular(
+            @Param("filtro") String filtro,
+            Pageable pageable
+    );
+
+    @Query(
+            value = """
+                    SELECT us.*
+                    FROM usuarios us
+                    LEFT JOIN operaciones op ON us.id = op.fk_id_jefe_operacion
+                    LEFT JOIN personas p ON us.fk_id_persona = p.id
+                    WHERE
+                    (
+                        (op.fecha_finalizacion IS NULL AND op.fecha_creacion IS NULL)
+                        OR
+                        (op.id = :idOperacion AND op.fecha_finalizacion IS NULL)
+                    )
+                    AND us.estado = TRUE
+                    AND us.cargo = 'JEFE_DE_OPERACION'
+                    AND (
+                        :filtro IS NULL OR :filtro = '' OR
+                        LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(p.numero_doc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(us.email) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(p.celular) LIKE LOWER(CONCAT('%', :filtro, '%'))
+                    )
+                    ORDER BY p.nombres ASC, p.apellidos ASC
+                    """,
+            countQuery = """
+                    SELECT COUNT(*)
+                    FROM usuarios us
+                    LEFT JOIN operaciones op ON us.id = op.fk_id_jefe_operacion
+                    LEFT JOIN personas p ON us.fk_id_persona = p.id
+                    WHERE
+                    (
+                        (op.fecha_finalizacion IS NULL AND op.fecha_creacion IS NULL)
+                        OR
+                        (op.id = :idOperacion AND op.fecha_finalizacion IS NULL)
+                    )
+                    AND us.estado = TRUE
+                    AND us.cargo = 'JEFE_DE_OPERACION'
+                    AND (
+                        :filtro IS NULL OR :filtro = '' OR
+                        LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(p.numero_doc) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(us.email) LIKE LOWER(CONCAT('%', :filtro, '%')) OR
+                        LOWER(p.celular) LIKE LOWER(CONCAT('%', :filtro, '%'))
+                    )
+                    """,
+            nativeQuery = true
+    )
+    Page<Usuario> findUsuariosConOperacionesEdit(
+            @Param("filtro") String filtro,
+            @Param("idOperacion") Long idOperacion,
+            Pageable pageable
     );
 
 }

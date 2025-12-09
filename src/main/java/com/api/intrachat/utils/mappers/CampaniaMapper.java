@@ -28,6 +28,7 @@ public class CampaniaMapper {
                 campania.getNombreComercialEmpresa(),
                 AreaAtencion.valueOf(campania.getAreaAtencion()),
                 MedioComunicacion.valueOf(campania.getMedioComunicacion()),
+                campania.getNombre(),
                 campania.getTotalOperacionesActivas(),
                 campania.getTotalOperacionesInactivas(),
                 campania.getTotalEquiposActivos(),
