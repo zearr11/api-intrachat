@@ -1,7 +1,10 @@
 package com.api.intrachat.services.impl.general;
 
 import com.api.intrachat.dto.request.UsuarioRequest2;
+import com.api.intrachat.models.campania.EquipoUsuarios;
 import com.api.intrachat.models.general.Archivo;
+import com.api.intrachat.repositories.campania.EquipoUsuariosRepository;
+import com.api.intrachat.services.impl.campania.CampaniaService;
 import com.api.intrachat.services.interfaces.general.IArchivoService;
 import com.api.intrachat.services.interfaces.other.IEmailService;
 import com.api.intrachat.utils.constructs.RandomConstruct;
@@ -46,20 +49,25 @@ public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PersonaRepository personaRepository;
+    private final EquipoUsuariosRepository equipoUsuariosRepository;
 
     private final IArchivoService archivoService;
     private final IEmailService emailService;
+    private final CampaniaService campaniaService;
 
     public UsuarioService(PasswordEncoder passwordEncoder,
                           UsuarioRepository usuarioRepository,
                           PersonaRepository personaRepository,
+                          EquipoUsuariosRepository equipoUsuariosRepository,
                           IArchivoService archivoService,
-                          IEmailService emailService) {
+                          IEmailService emailService, CampaniaService campaniaService) {
         this.passwordEncoder = passwordEncoder;
         this.usuarioRepository = usuarioRepository;
         this.personaRepository = personaRepository;
+        this.equipoUsuariosRepository = equipoUsuariosRepository;
         this.archivoService = archivoService;
         this.emailService = emailService;
+        this.campaniaService = campaniaService;
     }
 
     @Override
@@ -308,12 +316,11 @@ public class UsuarioService implements IUsuarioService {
         usuarioRepository.save(nuevoUsuario);
 
         // Envío de credenciales
-        /*
         emailService.enviarCredencialesACorreo(
                 nuevoUsuario.getEmail(), UsuarioConstants.ASUNTO_DEFAULT_BIENVENIDA_EMAIL,
                 nuevoUsuario.getPersona().getNombres(), nuevoUsuario.getPersona().getApellidos(),
                 txtPassword
-        ); */
+        );
 
         // Retorno mensaje string
         return GeneralConstants.mensajeEntidadCreada("Usuario");
@@ -399,20 +406,27 @@ public class UsuarioService implements IUsuarioService {
                 && !usuarioRequest.getPassword().isBlank()) {
             usuarioModificar.setPassword(passwordEncoder.encode(usuarioRequest.getPassword()));
         }
-        // Rol
-        if (usuarioRequest.getRol() != null) {
-            usuarioModificar.setRol(usuarioRequest.getRol());
-        }
-        // Cargo
-        if (usuarioRequest.getCargo() != null) {
-            usuarioModificar.setCargo(usuarioRequest.getCargo());
+        if (usuarioRequest.getRol() != null || usuarioRequest.getCargo() != null) {
+            List<EquipoUsuarios> coincidencias = equipoUsuariosRepository.findByUsuario(obtenerUsuarioPorID(id));
+
+            coincidencias.forEach(val -> {
+                if (val.getEstado())
+                    throw new ErrorException409("El usuario se encuentra activo en un equipo, esto impide el cambio de cargo.");
+            });
+
+            // Rol
+            if (usuarioRequest.getRol() != null) {
+                usuarioModificar.setRol(usuarioRequest.getRol());
+            }
+            // Cargo
+            if (usuarioRequest.getCargo() != null) {
+                usuarioModificar.setCargo(usuarioRequest.getCargo());
+            }
         }
         // Estado
         if (usuarioRequest.getEstado() != null) {
             usuarioModificar.setEstado(usuarioRequest.getEstado());
         }
-
-        // Falta implementar validación para el cambio de rol no permitiéndolo en caso tenga campaña activa
 
         // Actualizar ultima modificación de entidad
         usuarioModificar.setUltimaModificacion(LocalDateTime.now());
